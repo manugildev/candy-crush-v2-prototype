@@ -100,7 +100,6 @@ public class GameObject {
         Tween.registerAccessor(Sprite.class, new SpriteAccessor());
         Tween.registerAccessor(Vector2.class, new VectorAccessor());
         manager = new TweenManager();
-
     }
 
     public void update(float delta) {

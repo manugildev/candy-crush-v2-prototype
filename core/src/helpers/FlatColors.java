@@ -64,8 +64,11 @@ public class FlatColors {
     }
 
     public static void organizeColors() {
-        colors.addAll(RED, DARK_RED, DARK_GREEN, DARK_BLUE, DARK_YELLOW,
-                DARK_PURPLE, PURPLE, YELLOW, GREEN, SEA, DARK_SEA,
-                BLUE, ORANGE, DARK_ORANGE);
+        colors.addAll(DARK_SEA, DARK_RED, DARK_GREEN, DARK_BLUE, DARK_YELLOW,
+                DARK_PURPLE, DARK_ORANGE, YELLOW, GREEN, SEA, RED,
+                BLUE, ORANGE, PURPLE);
+        colors.clear();
+        colors.addAll(Color.OLIVE, Color.BLACK, Color.BROWN, Color.RED, Color.PINK, Color.GRAY,
+                Color.SALMON);
     }
 }

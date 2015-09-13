@@ -9,26 +9,28 @@ import com.badlogic.gdx.utils.Array;
 import java.util.ArrayList;
 
 import MainGame.MainGame;
-import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenManager;
+import gameobjects.Board;
 import gameobjects.GameObject;
 import helpers.AssetLoader;
 import helpers.FlatColors;
 import screens.GameScreen;
 import screens.LoadingScreen;
-import tweens.Value;
-import tweens.ValueAccessor;
+
+import static configuration.Settings.BOARD_MARGIN;
 
 public class GameWorld {
 
+    public MainGame game;
     public float gameWidth, gameHeight;
     public int score = 0;
-    public MainGame game;
 
     //GAMEOBJECTS
     public GameObject background, top;
     private GameState gameState;
     public TweenManager manager;
+
+    public Board board;
 
 
     public GameWorld(MainGame game, float gameWidth, float gameHeight) {
@@ -36,7 +38,7 @@ public class GameWorld {
         this.gameWidth = gameWidth;
         this.gameHeight = gameHeight;
         gameState = GameState.TUTORIAL;
-        Tween.registerAccessor(Value.class, new ValueAccessor());
+
     }
 
     public void start() {
@@ -48,16 +50,22 @@ public class GameWorld {
         background = new GameObject(this, 0, 0, gameWidth, gameHeight,
                 AssetLoader.background, FlatColors.WHITE, GameObject.Shape.RECTANGLE);
 
+        //GAMEOBJECTS
+        createBoard();
+
     }
 
     public void update(float delta) {
         manager.update(delta);
+        board.update(delta);
         top.update(delta);
+
 
     }
 
     public void render(SpriteBatch batch, ShapeRenderer shapeRenderer) {
         background.render(batch, shapeRenderer);
+        board.render(batch, shapeRenderer);
         top.render(batch, shapeRenderer);
     }
 
@@ -109,5 +117,15 @@ public class GameWorld {
 
     public void organizeData(ArrayList<Array<Float>> PATTERN) {
 
+    }
+
+    //CREATING STUFF
+    private void createBoard() {
+        float boardW = gameWidth - (BOARD_MARGIN * 2);
+        float boardX = gameWidth / 2 - (boardW / 2);
+        float boardY = gameHeight / 2 - (boardW / 2);
+        board = new Board(this, boardX, boardY, boardW, boardW, AssetLoader.square, FlatColors.BLUE,
+                GameObject.Shape.RECTANGLE);
+        board.start();
     }
 }

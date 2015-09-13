@@ -81,6 +81,7 @@ public class LoadingScreen implements Screen {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         Gdx.gl.glEnable(GL20.GL_BLEND);
+
         manager.update(delta);
         batch.begin();
         background.draw(batch);
@@ -90,6 +91,7 @@ public class LoadingScreen implements Screen {
         logo.draw(batch);
         top.draw(batch);
         batch.end();
+
         if (finishedTween) {
             if (Assets.manager.update() && !goingToMenu) {
                 goToMenu();

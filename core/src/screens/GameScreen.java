@@ -4,9 +4,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 
 import MainGame.MainGame;
+import aurelienribon.tweenengine.Tween;
 import gameworld.GameRenderer;
 import gameworld.GameWorld;
-import helpers.InputHandler;
+import gameworld.InputHandler;
+import helpers.FlatColors;
+import tweens.Value;
+import tweens.ValueAccessor;
 
 public class GameScreen implements Screen {
 
@@ -24,6 +28,9 @@ public class GameScreen implements Screen {
         world.start();
         Gdx.input.setInputProcessor(new InputHandler(world, sW / gameWidth, sH / gameHeight));
         renderer = new GameRenderer(world);
+        
+        Tween.registerAccessor(Value.class, new ValueAccessor());
+        FlatColors.organizeColors();
     }
 
     @Override

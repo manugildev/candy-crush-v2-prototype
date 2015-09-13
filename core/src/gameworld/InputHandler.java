@@ -1,10 +1,9 @@
-package helpers;
+package gameworld;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 
 import configuration.Configuration;
-import gameworld.GameWorld;
 
 public class InputHandler implements InputProcessor {
 
@@ -29,7 +28,7 @@ public class InputHandler implements InputProcessor {
         } else if (keycode == Input.Keys.M) {
         } else if (keycode == Input.Keys.S) {
         } else if (keycode == Input.Keys.L) {
-
+            world.goToGameScreen();
         } else if (keycode == Input.Keys.SPACE) {
 
         } else if (keycode == Input.Keys.LEFT) {
