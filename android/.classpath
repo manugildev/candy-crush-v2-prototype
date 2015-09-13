@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER" exported="true"/>
+	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK" exported="true"/>
+	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES" exported="true"/>
+	<classpathentry kind="src" path="/Bitcoin Crush-core" exported="true"/>
+	<classpathentry sourcepath="/Users/ManuGil/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx-backend-android/1.6.5/a3b12b5304c7d01e54328688508f564ef502d503/gdx-backend-android-1.6.5-sources.jar" kind="lib" path="/Users/ManuGil/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx-backend-android/1.6.5/47d6744474ff276a8f92e92d22d7c956f5c832f0/gdx-backend-android-1.6.5.jar" exported="true"/>
+	<classpathentry sourcepath="/Users/ManuGil/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.6.5/1aafe92f2aca6a95f6b0590336411cc52b814445/gdx-1.6.5-sources.jar" kind="lib" path="/Users/ManuGil/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.6.5/b56ebcc34d39c4bb0a828c5ed04f46a04314bb4d/gdx-1.6.5.jar" exported="true"/>
+</classpath>
