@@ -3,8 +3,14 @@ package gamecontrol;
 import com.badlogic.gdx.utils.Array;
 
 public class Match extends Array<Coord> {
+
     public Match() {
         super();
+    }
+
+    @Override
+    public void add(Coord value) {
+        super.add(value);
     }
 
     public boolean isMatched(Coord c) {
@@ -15,7 +21,6 @@ public class Match extends Array<Coord> {
         if (size > 0) {
             return get(size / 2);
         }
-
         return null;
     }
 
@@ -25,7 +30,6 @@ public class Match extends Array<Coord> {
         for (int i = 0; i < size; ++i) {
             string += "(" + get(i).x + ", " + get(i).y + ")";
         }
-
         return string;
     }
 }

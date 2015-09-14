@@ -16,7 +16,6 @@ public class MultipleMatch extends Array<Match> {
                 return true;
             }
         }
-
         return false;
     }
 }
