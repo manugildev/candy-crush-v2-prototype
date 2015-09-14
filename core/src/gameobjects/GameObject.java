@@ -232,6 +232,15 @@ public class GameObject {
                 .ease(TweenEquations.easeInOutSine).start(manager);
     }
 
+    public void effectXY(Vector2 from, Vector2 to, float duration, float delay) {
+        position.y = from.y;
+        Tween.to(position, VectorAccessor.VERTICAL, duration).target(to.y).delay(delay)
+                .ease(TweenEquations.easeInOutSine).start(manager);
+        position.x = from.x;
+        Tween.to(position, VectorAccessor.HORIZONTAL, duration).target(to.x).delay(delay)
+                .ease(TweenEquations.easeInOutSine).start(manager);
+    }
+
     public boolean isInside() {
         if (getPosition().x > 0 - getSprite()
                 .getWidth() && getPosition().x < world.gameWidth + getSprite().getWidth()

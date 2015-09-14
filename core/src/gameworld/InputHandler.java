@@ -31,16 +31,18 @@ public class InputHandler implements InputProcessor {
     public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.R) {
         } else if (keycode == Input.Keys.F) {
+            world.board.fall();
         } else if (keycode == Input.Keys.D) {
             if (Configuration.DEBUG) Configuration.DEBUG = false;
             else Configuration.DEBUG = true;
         } else if (keycode == Input.Keys.C) {
             Gdx.app.log("Matches", world.board.check().toString());
         } else if (keycode == Input.Keys.S) {
+            Gdx.app.log("Matches", world.board.solutions().toString());
         } else if (keycode == Input.Keys.L) {
             world.goToGameScreen();
         } else if (keycode == Input.Keys.SPACE) {
-
+            world.board.controlBucle();
         } else if (keycode == Input.Keys.LEFT) {
         }
         return false;

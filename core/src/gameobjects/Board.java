@@ -7,12 +7,16 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 
+import aurelienribon.tweenengine.BaseTween;
+import aurelienribon.tweenengine.Tween;
+import aurelienribon.tweenengine.TweenCallback;
 import gamecontrol.Coord;
 import gamecontrol.Match;
 import gamecontrol.MultipleMatch;
 import gameworld.GameWorld;
 import helpers.AssetLoader;
 import helpers.FlatColors;
+import tweens.Value;
 
 import static configuration.Settings.NUM_OF_SQUARES;
 import static configuration.Settings.SQUARE_SIZE;
@@ -102,8 +106,8 @@ public class Board extends GameObject {
     @Override
     public void render(SpriteBatch batch, ShapeRenderer shapeRenderer) {
         super.render(batch, shapeRenderer);
-        for (int i = 0; i < NUM_OF_SQUARES; i++) {
-            for (int j = 0; j < NUM_OF_SQUARES; j++) {
+        for (int i = NUM_OF_SQUARES - 1; i >= 0; i--) {
+            for (int j = NUM_OF_SQUARES - 1; j >= 0; j--) {
                 squares[i][j].render(batch, shapeRenderer);
             }
         }
@@ -258,7 +262,6 @@ public class Board extends GameObject {
                 }
             }
         }
-
         return results;
     }
 
@@ -266,6 +269,128 @@ public class Board extends GameObject {
         Square temp = squares[x1][y1];
         squares[x1][y1] = squares[x2][y2];
         squares[x2][y2] = temp;
+
+        squares[x2][y2].setCoord(x2, y2);
+        squares[x1][y1].setCoord(x1, y1);
+
+    }
+
+    public void control() {
+        if (check().size != 0) {
+            MultipleMatch matches = check();
+            for (int i = 0; i < matches.size; i++) {
+                Match match = matches.get(i);
+                for (int j = 0; j < match.size; j++) {
+                    Coord c = match.get(j);
+                    squares[c.x][c.y].dissapear();
+                    timerToControl();
+                }
+            }
+            controlBucle();
+        }
+    }
+
+    private void timerToControl() {
+        Value timer = new Value();
+        Tween.to(timer, -1, .12f).setCallbackTriggers(TweenCallback.COMPLETE).setCallback(
+                new TweenCallback() {
+                    @Override
+                    public void onEvent(int type, BaseTween<?> source) {
+                        controlBucle();
+                    }
+                }).start(getManager());
+    }
+
+    public void controlBucle() {
+        world.board.calculateEmptyBelow();
+        world.board.calculateDiffBelow();
+        world.board.fall();
+        world.board.refreshCR();
+
+    }
+
+    /*public void fall() {
+        for (int i = 0; i < NUM_OF_SQUARES; i++) {
+            for (int j = NUM_OF_SQUARES - 1; j > 0; j--) {
+                if (squares[i][j].type == Square.Type.sqEmpty) {
+                    squares[i][j].swapXandY(squares, i, j, i, j - 1);
+                    break;
+                }
+            }
+        }
+    }*/
+
+    /*public void fall() {
+        for (int i = 0; i < NUM_OF_SQUARES; i++) {
+            for (int j = 0; j < NUM_OF_SQUARES - 1; j++) {
+                if (squares[i][j + 1].type == Square.Type.sqEmpty) {
+                    if (squares[i][j].type != Square.Type.sqEmpty) {
+                        squares[i][j].swapXandY(squares, i, j, i, j + 1);
+                        break;
+                    }
+                }
+            }
+        }
+    }*/
+
+    public void calculateEmptyBelow() {
+        for (int i = 0; i < NUM_OF_SQUARES; i++) {
+            for (int j = 0; j < NUM_OF_SQUARES - 1; j++) {
+                Square cSquare = squares[i][j];
+                cSquare.emptyB = 0;
+                if (cSquare.type != Square.Type.sqEmpty)
+                    for (int l = j + 1; l < NUM_OF_SQUARES; l++) {
+                        if (squares[i][l].type == Square.Type.sqEmpty) {
+                            cSquare.emptyB++;
+                        }
+                    }
+            }
+        }
+    }
+
+    public void calculateDiffBelow() {
+        for (int i = 0; i < NUM_OF_SQUARES; i++) {
+            for (int j = 0; j < NUM_OF_SQUARES - 1; j++) {
+                Square cSquare = squares[i][j];
+                cSquare.diffY = 0;
+                if (cSquare.emptyB != 0) {
+                    Square iSquare = squares[i][j + cSquare.emptyB];
+                    cSquare.diffY = cSquare.getPosition().y - iSquare.getPosition().y;
+                }
+            }
+        }
+    }
+
+    public void fall() {
+        for (int i = 0; i < NUM_OF_SQUARES; i++) {
+            for (int j = 0; j < NUM_OF_SQUARES - 1; j++) {
+                Square cSquare = squares[i][j];
+                if (cSquare.diffY != 0) {
+                    cSquare.effectY(cSquare.getPosition().y,
+                            cSquare.getPosition().y - cSquare.diffY, .2f, 0.1f * (1 / (j + 1)));
+                }
+            }
+        }
+    }
+
+    public void refreshCR() {
+        Value timer = new Value();
+        Tween.to(timer, -1, .3f).setCallbackTriggers(TweenCallback.COMPLETE).setCallback(
+                new TweenCallback() {
+                    @Override
+                    public void onEvent(int type, BaseTween<?> source) {
+                        for (int i = NUM_OF_SQUARES - 1; i >= 0; i--) {
+                            for (int j = NUM_OF_SQUARES - 1; j >= 0; j--) {
+                                Square cSquare = squares[i][j];
+                                if (cSquare.emptyB != 0) {
+                                    swap(i, j, i, j + cSquare.emptyB);
+                                    cSquare.emptyB = 0;
+                                }
+                            }
+                        }
+                        //control();
+                    }
+                }).start(getManager());
 
     }
 }

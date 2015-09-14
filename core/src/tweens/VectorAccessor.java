@@ -19,6 +19,7 @@ public class VectorAccessor implements TweenAccessor<Vector2> {
             case HORIZONTAL:
                 returnValues[0] = target.x;
                 return 1;
+
             default:
                 return 0;
         }

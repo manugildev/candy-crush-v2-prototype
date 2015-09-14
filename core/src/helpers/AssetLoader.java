@@ -50,7 +50,7 @@ public class AssetLoader {
 
         font08 = new BitmapFont(Gdx.files.internal("misc/font.fnt"), new TextureRegion(tfont),
                 true);
-        font08.getData().setScale(0.8f, -0.8f);
+        font08.getData().setScale(0.6f, -0.6f);
         font08.setColor(FlatColors.WHITE);
 
         font12 = new BitmapFont(Gdx.files.internal("misc/font.fnt"), new TextureRegion(tfont),
