@@ -30,7 +30,7 @@ public class Square extends GameObject {
     public Type type;
     public int column, row;
     private Text text;
-    public int typeN, emptyB = 0;
+    public int typeN, emptyB = 0, emptyA = 0;
     public float diffY = 0;
 
 
@@ -44,7 +44,7 @@ public class Square extends GameObject {
         this.type = numToType(typeN);
         this.typeN = typeN;
         FlatColors.organizeColors();
-        sprite.setColor(FlatColors.colors.get(typeN - 1));
+        setType(typeN);
         text = new Text(world, x + 10, y, width, height, texture, color, column + "" + row,
                 AssetLoader.font08, FlatColors.WHITE, 10,
                 Align.left);
@@ -53,15 +53,19 @@ public class Square extends GameObject {
     public void update(float delta) {
         super.update(delta);
         text.update(delta);
-        //text.setText(column + "" + row + "\nE:" + emptyB);
-        text.setText(column + "" + row + "\n" + diffY);
+        text.setText(column + "" + row + "\nE:" + emptyB);
+
+        //text.setText(column + "" + row + "\nE:" + emptyA);
+
+
+        //text.setText(column + "" + row + "\n" + diffY);
         text.setPosition(getPosition().x + 10, getPosition().y);
     }
 
     public void render(SpriteBatch batch, ShapeRenderer shapeRenderer) {
         super.render(batch, shapeRenderer);
         //if (Configuration.DEBUG)
-        if (type != Type.sqEmpty) text.render(batch, shapeRenderer, GameRenderer.fontShader);
+        text.render(batch, shapeRenderer, GameRenderer.fontShader);
     }
 
     public void setCoord(int column, int row) {
@@ -216,13 +220,14 @@ public class Square extends GameObject {
 
     public void dissapear() {
         scale(1, 0, .1f, 0f);
+        setType(-1);
         Value timer = new Value();
         Tween.to(timer, -1, .11f).target(1).setCallbackTriggers(TweenCallback.COMPLETE).setCallback(
                 new TweenCallback() {
                     @Override
                     public void onEvent(int t, BaseTween<?> source) {
-                        setType(-1);
-                        getSprite().setScale(0);
+                        getSprite().setScale(.5f);
+                        getSprite().setOriginCenter();
                     }
                 }).start(getManager());
 

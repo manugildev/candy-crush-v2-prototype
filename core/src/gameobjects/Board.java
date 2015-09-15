@@ -1,5 +1,6 @@
 package gameobjects;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -32,6 +33,9 @@ public class Board extends GameObject {
     private Coord[] matchCoords = new Coord[1000];
     private Coord[] solCoords = new Coord[1000];
     private Array<Coord> results = new Array<Coord>();
+    Square[][] tempM;
+
+    float spaceBetweenSquares;
 
     public Board(GameWorld world, float x, float y, float width, float height,
                  TextureRegion texture, Color color, Shape shape) {
@@ -59,12 +63,11 @@ public class Board extends GameObject {
     public void generate() {
 
         boolean repeat = false;
-
         do {
             repeat = false;
             System.out.println("### Generating...");
 
-            float spaceBetweenSquares = (sprite.getWidth() -
+            spaceBetweenSquares = (sprite.getWidth() -
                     ((NUM_OF_SQUARES) * SQUARE_SIZE)) / (NUM_OF_SQUARES + 1);
             for (int i = 0; i < NUM_OF_SQUARES; i++) {
                 for (int j = 0; j < NUM_OF_SQUARES; j++) {
@@ -265,6 +268,12 @@ public class Board extends GameObject {
         return results;
     }
 
+    public void swapW(int x1, int y1, int x2, int y2) {
+        Square temp = squares[x1][y1];
+        squares[x1][y1] = squares[x2][y2];
+        squares[x2][y2] = temp;
+    }
+
     public void swap(int x1, int y1, int x2, int y2) {
         Square temp = squares[x1][y1];
         squares[x1][y1] = squares[x2][y2];
@@ -272,7 +281,21 @@ public class Board extends GameObject {
 
         squares[x2][y2].setCoord(x2, y2);
         squares[x1][y1].setCoord(x1, y1);
+    }
 
+    public void swapTemp(int x1, int y1, int x2, int y2) {
+        Square temp = tempM[x1][y1];
+        squares[x1][y1] = tempM[x2][y2];
+        squares[x2][y2] = temp;
+
+        squares[x2][y2].setCoord(x2, y2);
+        squares[x1][y1].setCoord(x1, y1);
+    }
+
+
+    private void swapCR(int x1, int y1, int x2, int y2) {
+        squares[x1][y1].setCoord(x2, y2);
+        squares[x2][y2].setCoord(x1, y1);
     }
 
     public void control() {
@@ -283,10 +306,10 @@ public class Board extends GameObject {
                 for (int j = 0; j < match.size; j++) {
                     Coord c = match.get(j);
                     squares[c.x][c.y].dissapear();
-                    timerToControl();
+                    //----> timerToControl();
                 }
             }
-            controlBucle();
+            //controlBucle();
         }
     }
 
@@ -303,10 +326,10 @@ public class Board extends GameObject {
 
     public void controlBucle() {
         world.board.calculateEmptyBelow();
+        world.board.calculateEmptyAbove();
         world.board.calculateDiffBelow();
         world.board.fall();
         world.board.refreshCR();
-
     }
 
     /*public void fall() {
@@ -348,26 +371,45 @@ public class Board extends GameObject {
         }
     }
 
+    public void calculateEmptyAbove() {
+        for (int i = NUM_OF_SQUARES - 1; i >= 0; i--) {
+            for (int j = NUM_OF_SQUARES - 1; j >= 1; j--) {
+                Square cSquare = squares[i][j];
+                if (cSquare.type == Square.Type.sqEmpty) {
+                    cSquare.emptyB = 0;
+                    for (int l = j - 1; l >= 0; l--) {
+                        if (squares[i][l].type != Square.Type.sqEmpty) {
+                            cSquare.emptyB--;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public void calculateDiffBelow() {
         for (int i = 0; i < NUM_OF_SQUARES; i++) {
-            for (int j = 0; j < NUM_OF_SQUARES - 1; j++) {
+            for (int j = 0; j < NUM_OF_SQUARES; j++) {
                 Square cSquare = squares[i][j];
                 cSquare.diffY = 0;
                 if (cSquare.emptyB != 0) {
                     Square iSquare = squares[i][j + cSquare.emptyB];
                     cSquare.diffY = cSquare.getPosition().y - iSquare.getPosition().y;
-                }
+                } /*else if (cSquare.emptyA != 0) {
+                    Square iSquare = squares[i][j + cSquare.emptyA];
+                    cSquare.diffY = cSquare.getPosition().y - iSquare.getPosition().y;
+                }*/
             }
         }
     }
 
     public void fall() {
         for (int i = 0; i < NUM_OF_SQUARES; i++) {
-            for (int j = 0; j < NUM_OF_SQUARES - 1; j++) {
+            for (int j = 0; j < NUM_OF_SQUARES; j++) {
                 Square cSquare = squares[i][j];
                 if (cSquare.diffY != 0) {
                     cSquare.effectY(cSquare.getPosition().y,
-                            cSquare.getPosition().y - cSquare.diffY, .2f, 0.1f * (1 / (j + 1)));
+                            cSquare.getPosition().y - cSquare.diffY, 1f, 0.1f * (1 / (j + 1)));
                 }
             }
         }
@@ -375,22 +417,74 @@ public class Board extends GameObject {
 
     public void refreshCR() {
         Value timer = new Value();
-        Tween.to(timer, -1, .3f).setCallbackTriggers(TweenCallback.COMPLETE).setCallback(
+        Tween.to(timer, -1, 1.1f).setCallbackTriggers(TweenCallback.COMPLETE).setCallback(
                 new TweenCallback() {
                     @Override
                     public void onEvent(int type, BaseTween<?> source) {
+                        tempM = squares;
                         for (int i = NUM_OF_SQUARES - 1; i >= 0; i--) {
                             for (int j = NUM_OF_SQUARES - 1; j >= 0; j--) {
                                 Square cSquare = squares[i][j];
-                                if (cSquare.emptyB != 0) {
-                                    swap(i, j, i, j + cSquare.emptyB);
-                                    cSquare.emptyB = 0;
-                                }
+                                if (cSquare.emptyB > 0) {
+                                    //swapCR(i, j, i, j + cSquare.emptyB);
+                                    cSquare.row = j + cSquare.emptyB;
+                                    swapW(i, j, i, j + cSquare.emptyB);
+                                    //squares[i][cSquare.row] = squares[i][j];
+                                    //cSquare.emptyB = 0;
+
+                                } /*else if (cSquare.emptyB < 0) {
+                                    float squareX = sprite
+                                            .getX() + ((i + 1) * spaceBetweenSquares) + (i * SQUARE_SIZE);
+                                    float squareY = sprite.getY() + sprite.getHeight() -
+                                            ((j + 1) * spaceBetweenSquares) - (j * SQUARE_SIZE) - SQUARE_SIZE;
+                                    squares[i][j] = new Square(world, squareX, squareY, SQUARE_SIZE, SQUARE_SIZE,
+                                            AssetLoader.square, FlatColors.WHITE, Shape.RECTANGLE, i, j,
+                                            MathUtils.random(1, Square.Type.values().length - 3));
+                                }*/
+                                /* else if (cSquare.emptyA != 0) {
+                                    swap(i, j, i, j + cSquare.emptyA);
+                                    cSquare.emptyA = 0;
+                                }*/
+
                             }
                         }
-                        //control();
+                        world.board.calculateEmptyBelow();
+                        world.board.calculateEmptyAbove();
+                        /*
+                        for (int i = 0; i < NUM_OF_SQUARES; i++) {
+                            for (int j = 0; j < NUM_OF_SQUARES - 1; j++) {
+                                Square cSquare = squares[i][j];
+                                if (cSquare.emptyA != 0) {
+                                    Gdx.app.log("SWAP",
+                                            i + " " + (j - cSquare.emptyA) + " " + i + " " + (j));
+                                    swap(i, j - cSquare.emptyA, i, j);
+                                    cSquare.emptyA = 0;
+                                }
+                            }
+                        }*/
                     }
+
                 }).start(getManager());
 
+    }
+
+    private Square createNewSquare(int i, int j, int type) {
+        float squareX = sprite
+                .getX() + ((i + 1) * spaceBetweenSquares) + (i * SQUARE_SIZE);
+        float squareY = sprite.getY() + sprite.getHeight() -
+                ((j + 1) * spaceBetweenSquares) - (j * SQUARE_SIZE) - SQUARE_SIZE;
+        return new Square(world, squareX, squareY, SQUARE_SIZE, SQUARE_SIZE,
+                AssetLoader.square, FlatColors.WHITE, Shape.RECTANGLE, i, j, type);
+    }
+
+    public void changeArrayPos() {
+        for (int i = 0; i < NUM_OF_SQUARES; i++) {
+            for (int j = 0; j < NUM_OF_SQUARES; j++) {
+                if (squares[i][j].row != j) {
+                    Gdx.app.log("Error in Rows", j + " " + squares[i][j].row);
+                    swapW(i, j, i, squares[i][j].row);
+                }
+            }
+        }
     }
 }

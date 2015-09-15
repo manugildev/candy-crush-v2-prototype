@@ -37,6 +37,9 @@ public class InputHandler implements InputProcessor {
             else Configuration.DEBUG = true;
         } else if (keycode == Input.Keys.C) {
             Gdx.app.log("Matches", world.board.check().toString());
+            world.board.calculateEmptyBelow();
+            world.board.calculateEmptyAbove();
+            world.board.calculateDiffBelow();
         } else if (keycode == Input.Keys.S) {
             Gdx.app.log("Matches", world.board.solutions().toString());
         } else if (keycode == Input.Keys.L) {
@@ -91,7 +94,7 @@ public class InputHandler implements InputProcessor {
         touchUp = new Vector2(screenX, screenY);
         angle = angleBetweenTwoPoints(touchDown, touchUp);
 
-        if (touchedSquare != null) {
+        if (touchedSquare != null && touchedSquare.type != Square.Type.sqEmpty) {
             if (angle > (360 - 45) || (angle < 45 && angle >= 0)) {
                 touchedSquare.slideRight();
             } else if (angle >= 45 && angle < 135) {
