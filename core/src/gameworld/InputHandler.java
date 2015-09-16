@@ -29,6 +29,7 @@ public class InputHandler implements InputProcessor {
 
     @Override
     public boolean keyDown(int keycode) {
+
         if (keycode == Input.Keys.R) {
         } else if (keycode == Input.Keys.F) {
             world.board.fall();
@@ -44,12 +45,14 @@ public class InputHandler implements InputProcessor {
             Gdx.app.log("Matches", world.board.solutions().toString());
         } else if (keycode == Input.Keys.L) {
             world.goToGameScreen();
-        } else if (keycode == Input.Keys.SPACE) {
-            world.board.controlBucle();
+        } else if (keycode == Input.Keys.A) {
+            if (Configuration.AUTOSOLVE) Configuration.AUTOSOLVE = false;
+            else Configuration.AUTOSOLVE = true;
         } else if (keycode == Input.Keys.LEFT) {
         }
         return false;
     }
+
 
     @Override
     public boolean keyUp(int keycode) {
@@ -69,10 +72,10 @@ public class InputHandler implements InputProcessor {
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         screenX = scaleX(screenX);
         screenY = scaleY(screenY);
-
+        activeTouch++;
+        squares = world.board.squares;
         touchDown = new Vector2(screenX, screenY);
         touchedSquare = null;
-        squares = world.board.squares;
         for (int i = 0; i < NUM_OF_SQUARES; i++) {
             for (int j = 0; j < NUM_OF_SQUARES; j++) {
                 if (squares[i][j].isTouchDown(screenX, screenY)) {
@@ -80,6 +83,11 @@ public class InputHandler implements InputProcessor {
                     //Gdx.app.log("TouchedSquare: ", i + " " + j);
                 }
             }
+        }
+
+        if(activeTouch==3){
+            if (Configuration.AUTOSOLVE) Configuration.AUTOSOLVE = false;
+            else Configuration.AUTOSOLVE = true;
         }
 
         return false;

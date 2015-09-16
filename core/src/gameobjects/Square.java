@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Align;
 
@@ -13,7 +12,6 @@ import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenCallback;
 import aurelienribon.tweenengine.TweenEquations;
 import configuration.Settings;
-import gameworld.GameRenderer;
 import gameworld.GameWorld;
 import helpers.AssetLoader;
 import helpers.FlatColors;
@@ -22,6 +20,7 @@ import tweens.VectorAccessor;
 import ui.Text;
 
 public class Square extends GameObject {
+
 
     public enum Type {
         sqEmpty, sqWhite, sqRed, sqPurple, sqOrange, sqGreen, sqYellow, sqBlue
@@ -32,7 +31,6 @@ public class Square extends GameObject {
     private Text text;
     public int typeN, emptyB = 0, emptyA = 0;
     public float diffY = 0;
-
 
     public boolean isSelected = false;
 
@@ -50,10 +48,15 @@ public class Square extends GameObject {
                 Align.left);
     }
 
+    public Square(GameWorld world) {
+        super(world, 0, 0, 0, 0, AssetLoader.square, FlatColors.WHITE, Shape.RECTANGLE);
+
+    }
+
     public void update(float delta) {
         super.update(delta);
         text.update(delta);
-        text.setText(column + "" + row + "\nE:" + emptyB);
+        text.setText(column + "" + row /*+ "\nE:" + emptyB*/);
 
         //text.setText(column + "" + row + "\nE:" + emptyA);
 
@@ -65,7 +68,7 @@ public class Square extends GameObject {
     public void render(SpriteBatch batch, ShapeRenderer shapeRenderer) {
         super.render(batch, shapeRenderer);
         //if (Configuration.DEBUG)
-        text.render(batch, shapeRenderer, GameRenderer.fontShader);
+        // if (sprite.getScaleX() == 1) text.render(batch, shapeRenderer, GameRenderer.fontShader);
     }
 
     public void setCoord(int column, int row) {
@@ -75,6 +78,7 @@ public class Square extends GameObject {
 
     public Type numToType(int num) {
         FlatColors.organizeColors();
+        typeN = num;
         switch (num) {
             case 1:
                 sprite.setColor(FlatColors.colors.get(num - 1));
@@ -98,15 +102,16 @@ public class Square extends GameObject {
                 sprite.setColor(FlatColors.colors.get(num - 1));
                 return Type.sqBlue;
             default:
-                sprite.setColor(FlatColors.GREY);
+                //sprite.setColor(FlatColors.GREY);
                 return Type.sqEmpty;
+
+
         }
     }
 
-    public void start() {
-        float delay = MathUtils.random(0.2f, 0.8f);
-        fadeIn(.5f, delay);
-        scale(0, 1, .5f, delay);
+    public void start(float v) {
+        fadeIn(.5f, v);
+        scale(0, 1, .5f, v);
     }
 
     public void select() {
@@ -144,7 +149,7 @@ public class Square extends GameObject {
     }
 
     private boolean checkValidMovement(int futureRow, int futureColumn) {
-
+        //Gdx.app.log(" Slide", column + " " + row + " " + futureColumn + " " + futureRow);
         if (futureRow < 0 || futureRow > Settings.NUM_OF_SQUARES - 1) {
             return false;
         } else if (futureColumn < 0 || futureColumn > Settings.NUM_OF_SQUARES - 1) {
@@ -219,21 +224,20 @@ public class Square extends GameObject {
     }
 
     public void dissapear() {
-        scale(1, 0, .1f, 0f);
+        scale(1, 0, .3f, .1f);
+        fadeOut(.3f, .1f);
         setType(-1);
-        Value timer = new Value();
-        Tween.to(timer, -1, .11f).target(1).setCallbackTriggers(TweenCallback.COMPLETE).setCallback(
-                new TweenCallback() {
-                    @Override
-                    public void onEvent(int t, BaseTween<?> source) {
-                        getSprite().setScale(.5f);
-                        getSprite().setOriginCenter();
-                    }
-                }).start(getManager());
 
     }
 
     public void setType(int i) {
         type = numToType(i);
+    }
+
+    public void fallingEffect(Vector2 vector2, float delay) {
+        position.y = vector2.y;
+        effectY(vector2.y + 300, vector2.y, .3f, delay);
+        fadeIn(.3f, delay);
+        scale(0, 1, .3f, delay);
     }
 }

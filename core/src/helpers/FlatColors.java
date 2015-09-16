@@ -68,7 +68,6 @@ public class FlatColors {
                 DARK_PURPLE, DARK_ORANGE, YELLOW, GREEN, SEA, RED,
                 BLUE, ORANGE, PURPLE);
         colors.clear();
-        colors.addAll(Color.OLIVE, Color.BLACK, Color.BROWN, Color.RED, Color.PINK, Color.GRAY,
-                Color.SALMON);
+        colors.addAll(RED, GREEN, ORANGE, PURPLE, BLUE, DARK_WHITE, LIGHT_BLACK);
     }
 }

@@ -6,42 +6,47 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
 import aurelienribon.tweenengine.BaseTween;
 import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenCallback;
+import configuration.Configuration;
 import gamecontrol.Coord;
 import gamecontrol.Match;
 import gamecontrol.MultipleMatch;
+import gamecontrol.Sols;
 import gameworld.GameWorld;
 import helpers.AssetLoader;
 import helpers.FlatColors;
 import tweens.Value;
 
 import static configuration.Settings.NUM_OF_SQUARES;
+import static configuration.Settings.NUM_OF_TYPES;
 import static configuration.Settings.SQUARE_SIZE;
-
 
 public class Board extends GameObject {
 
     public Square[][] squares = new Square[NUM_OF_SQUARES][NUM_OF_SQUARES];
+    Square[][] tempM = new Square[NUM_OF_SQUARES][NUM_OF_SQUARES];
+
+    Vector2[][] pos = new Vector2[NUM_OF_SQUARES][NUM_OF_SQUARES];
 
     private MultipleMatch matches = new MultipleMatch();
     private Match[][] columns = new Match[NUM_OF_SQUARES][NUM_OF_SQUARES - 2];
     private Match[][] rows = new Match[NUM_OF_SQUARES][NUM_OF_SQUARES - 2];
     private Coord[] matchCoords = new Coord[1000];
-    private Coord[] solCoords = new Coord[1000];
-    private Array<Coord> results = new Array<Coord>();
-    Square[][] tempM;
+    private Sols[] solCoords = new Sols[1000];
+    private Array<Sols> results = new Array<Sols>();
 
     float spaceBetweenSquares;
 
     public Board(GameWorld world, float x, float y, float width, float height,
                  TextureRegion texture, Color color, Shape shape) {
         super(world, x, y, width, height, texture, color, shape);
+        sprite.setAlpha(.5f);
         createSquares();
-
 
     }
 
@@ -54,44 +59,40 @@ public class Board extends GameObject {
         }
         for (int x = 0; x < 1000; ++x) {
             matchCoords[x] = new Coord();
-            solCoords[x] = new Coord();
+            solCoords[x] = new Sols();
         }
         generate();
         check();
+
+        fillPosArray();
     }
 
     public void generate() {
 
-        boolean repeat = false;
+        boolean repeat;
+        long startTime = System.currentTimeMillis();
+
         do {
             repeat = false;
-            System.out.println("### Generating...");
 
             spaceBetweenSquares = (sprite.getWidth() -
                     ((NUM_OF_SQUARES) * SQUARE_SIZE)) / (NUM_OF_SQUARES + 1);
             for (int i = 0; i < NUM_OF_SQUARES; i++) {
                 for (int j = 0; j < NUM_OF_SQUARES; j++) {
-                    float squareX = sprite
-                            .getX() + ((i + 1) * spaceBetweenSquares) + (i * SQUARE_SIZE);
-                    float squareY = sprite.getY() + sprite.getHeight() -
-                            ((j + 1) * spaceBetweenSquares) - (j * SQUARE_SIZE) - SQUARE_SIZE;
-                    squares[i][j] = new Square(world, squareX, squareY, SQUARE_SIZE, SQUARE_SIZE,
-                            AssetLoader.square, FlatColors.WHITE, Shape.RECTANGLE, i, j,
-                            MathUtils.random(1, Square.Type.values().length - 3));
+                    squares[i][j] = createNewSquare(i, j, MathUtils.random(1, NUM_OF_TYPES - 1));
                 }
             }
 
             if (check().size != 0) {
-                System.out.println("Generated board has matches, repeating...");
                 repeat = true;
             } else if (solutions().size == 0) {
-                System.out.println("Generated board doesn't have solutions, repeating...");
                 repeat = true;
             }
         } while (repeat);
 
-        System.out.println("The generated board has no matches but some possible solutions.");
-
+        long stopTime = System.currentTimeMillis();
+        long elapsedTime = stopTime - startTime;
+        System.out.println("Time to Generate Board --> " + elapsedTime / 1000.0);
 
     }
 
@@ -121,7 +122,7 @@ public class Board extends GameObject {
         scale(0.8f, 1, .5f, .2f);
         for (int i = 0; i < NUM_OF_SQUARES; i++) {
             for (int j = 0; j < NUM_OF_SQUARES; j++) {
-                squares[i][j].start();
+                squares[i][j].start(((i * j) * 0.025f) + 1f);
             }
         }
     }
@@ -193,13 +194,14 @@ public class Board extends GameObject {
         return matches;
     }
 
-    public Array<Coord> solutions() {
+    public Array<Sols> solutions() {
         results.clear();
         int currCoord = 0;
 
         if (check().size != 0) {
             solCoords[currCoord].x = -1;
             solCoords[currCoord].y = -1;
+            solCoords[currCoord].d = -1;
             results.add(solCoords[currCoord]);
             ++currCoord;
             return results;
@@ -218,6 +220,7 @@ public class Board extends GameObject {
                     if (check().size != 0) {
                         solCoords[currCoord].x = x;
                         solCoords[currCoord].y = y;
+                        solCoords[currCoord].d = 0;
                         results.add(solCoords[currCoord]);
                         ++currCoord;
                     }
@@ -231,6 +234,7 @@ public class Board extends GameObject {
                     if (check().size != 0) {
                         solCoords[currCoord].x = x;
                         solCoords[currCoord].y = y;
+                        solCoords[currCoord].d = 2;
                         results.add(solCoords[currCoord]);
                         ++currCoord;
                     }
@@ -244,6 +248,7 @@ public class Board extends GameObject {
                     if (check().size != 0) {
                         solCoords[currCoord].x = x;
                         solCoords[currCoord].y = y;
+                        solCoords[currCoord].d = 1;
                         results.add(solCoords[currCoord]);
                         ++currCoord;
                     }
@@ -257,6 +262,7 @@ public class Board extends GameObject {
                     if (check().size != 0) {
                         solCoords[currCoord].x = x;
                         solCoords[currCoord].y = y;
+                        solCoords[currCoord].d = 3;
                         results.add(solCoords[currCoord]);
                         ++currCoord;
                     }
@@ -285,7 +291,6 @@ public class Board extends GameObject {
 
     public void swapTemp(int x1, int y1, int x2, int y2) {
         Gdx.app.log("Cords", x1 + " " + y1 + " " + x2 + " " + y2);
-        tempM = squares.clone();
         Square temp = tempM[x1][y1];
         squares[x1][y1] = tempM[x2][y2];
         squares[x2][y2] = temp;
@@ -294,6 +299,19 @@ public class Board extends GameObject {
         squares[x1][y1].setCoord(x1, y1);
     }
 
+    private void swapTemp(int x1, int y1) {
+
+        int x2 = tempM[x1][y1].column;
+        int y2 = tempM[x1][y1].row;
+
+        Gdx.app.log("Coords", x1 + " " + y1 + " " + x2 + " " + y2);
+        Square temp = tempM[x1][y1];
+        squares[x1][y1] = tempM[x2][y2];
+        squares[x2][y2] = temp;
+
+        squares[x2][y2].setCoord(x2, y2);
+        squares[x1][y1].setCoord(x1, y1);
+    }
 
     private void swapCR(int x1, int y1, int x2, int y2) {
         squares[x1][y1].setCoord(x2, y2);
@@ -308,16 +326,29 @@ public class Board extends GameObject {
                 for (int j = 0; j < match.size; j++) {
                     Coord c = match.get(j);
                     squares[c.x][c.y].dissapear();
-                    //----> timerToControl();
                 }
             }
-            //controlBucle();
+            timerToControl();
+        } else {
+           if(Configuration.AUTOSOLVE) autoSolve();
         }
     }
 
+    private void timercontrol() {
+        Value timer = new Value();
+        Tween.to(timer, -1, .31f).setCallbackTriggers(TweenCallback.COMPLETE).setCallback(
+                new TweenCallback() {
+                    @Override
+                    public void onEvent(int type, BaseTween<?> source) {
+                        control();
+                    }
+                }).start(getManager());
+    }
+
+
     private void timerToControl() {
         Value timer = new Value();
-        Tween.to(timer, -1, .12f).setCallbackTriggers(TweenCallback.COMPLETE).setCallback(
+        Tween.to(timer, -1, .1f).setCallbackTriggers(TweenCallback.COMPLETE).setCallback(
                 new TweenCallback() {
                     @Override
                     public void onEvent(int type, BaseTween<?> source) {
@@ -360,7 +391,7 @@ public class Board extends GameObject {
 
     public void calculateEmptyBelow() {
         for (int i = 0; i < NUM_OF_SQUARES; i++) {
-            for (int j = 0; j < NUM_OF_SQUARES - 1; j++) {
+            for (int j = 0; j < NUM_OF_SQUARES; j++) {
                 Square cSquare = squares[i][j];
                 cSquare.emptyB = 0;
                 if (cSquare.type != Square.Type.sqEmpty)
@@ -411,7 +442,7 @@ public class Board extends GameObject {
                 Square cSquare = squares[i][j];
                 if (cSquare.diffY != 0) {
                     cSquare.effectY(cSquare.getPosition().y,
-                            cSquare.getPosition().y - cSquare.diffY, 1f, 0.1f * (1 / (j + 1)));
+                            cSquare.getPosition().y - cSquare.diffY, .3f, 0.1f * (1 / (j + 1)));
                 }
             }
         }
@@ -419,62 +450,39 @@ public class Board extends GameObject {
 
     public void refreshCR() {
         Value timer = new Value();
-        Tween.to(timer, -1, 1.1f).setCallbackTriggers(TweenCallback.COMPLETE).setCallback(
+        Tween.to(timer, -1, .31f).setCallbackTriggers(TweenCallback.COMPLETE).setCallback(
                 new TweenCallback() {
                     @Override
                     public void onEvent(int type, BaseTween<?> source) {
-                        tempM = squares;
-                        for (int i = 0; i < NUM_OF_SQUARES; i++) {
+                        fillPosArray();
+                        for (int i = NUM_OF_SQUARES - 1; i >= 0; i--) {
                             for (int j = NUM_OF_SQUARES - 1; j >= 0; j--) {
                                 Square cSquare = squares[i][j];
-                                if (cSquare.emptyB != 0) {
-
+                                if (cSquare.emptyB >= 0) {
                                     cSquare.row = j + cSquare.emptyB;
-                                    Gdx.app.log("Cords",
-                                            i + " " + j + " " + i + " " + (cSquare.row));
-
-                                    //swapCR(i, j, i, j + cSquare.emptyB);
-                                    //swapW(i, j, i, j + cSquare.emptyB);
-                                    //swapTemp(i, j, i, j + cSquare.emptyB);
-                                    //squares[i][cSquare.row] = squares[i][j];
-                                    //cSquare.emptyB = 0;
-
-                                } /*else if (cSquare.emptyB < 0) {
-                                    float squareX = sprite
-                                            .getX() + ((i + 1) * spaceBetweenSquares) + (i * SQUARE_SIZE);
-                                    float squareY = sprite.getY() + sprite.getHeight() -
-                                            ((j + 1) * spaceBetweenSquares) - (j * SQUARE_SIZE) - SQUARE_SIZE;
-                                    squares[i][j] = new Square(world, squareX, squareY, SQUARE_SIZE, SQUARE_SIZE,
-                                            AssetLoader.square, FlatColors.WHITE, Shape.RECTANGLE, i, j,
-                                            MathUtils.random(1, Square.Type.values().length - 3));
-                                }*/
-                                /* else if (cSquare.emptyA != 0) {
-                                    swap(i, j, i, j + cSquare.emptyA);
-                                    cSquare.emptyA = 0;
-                                }*/
-
-                            }
-                        }
-                        world.board.calculateEmptyBelow();
-                        world.board.calculateEmptyAbove();
-                        //changeArrayPos();
-                        /*
-                        for (int i = 0; i < NUM_OF_SQUARES; i++) {
-                            for (int j = 0; j < NUM_OF_SQUARES - 1; j++) {
-                                Square cSquare = squares[i][j];
-                                if (cSquare.emptyA != 0) {
-                                    Gdx.app.log("SWAP",
-                                            i + " " + (j - cSquare.emptyA) + " " + i + " " + (j));
-                                    swap(i, j - cSquare.emptyA, i, j);
-                                    cSquare.emptyA = 0;
+                                    swap(i, j, i, cSquare.row);
                                 }
                             }
-                        }*/
+                        }
+
+                        for (int i = NUM_OF_SQUARES - 1; i >= 0; i--) {
+                            for (int j = NUM_OF_SQUARES - 1; j >= 0; j--) {
+                                Square cSquare = squares[i][j];
+                                if (cSquare.type == Square.Type.sqEmpty) {
+                                    //TODO: CHANGE Values
+                                    squares[i][j] = createNewSquare(i, j,
+                                            MathUtils.random(1, NUM_OF_TYPES - 1));
+                                    squares[i][j].fallingEffect(pos[i][j], 0.1f * (1 / (j + 1)));
+                                }
+                            }
+                        }
+                        timercontrol();
                     }
 
                 }).start(getManager());
 
     }
+
 
     private Square createNewSquare(int i, int j, int type) {
         float squareX = sprite
@@ -485,14 +493,42 @@ public class Board extends GameObject {
                 AssetLoader.square, FlatColors.WHITE, Shape.RECTANGLE, i, j, type);
     }
 
-    public void changeArrayPos() {
+    public void fillPosArray() {
         for (int i = 0; i < NUM_OF_SQUARES; i++) {
             for (int j = 0; j < NUM_OF_SQUARES; j++) {
-                if (squares[i][j].row != j) {
-                    Gdx.app.log("Error in Rows", j + " " + squares[i][j].row);
-                    squares[i][j] = createNewSquare(i, j, -1);
-                }
+                float squareX = sprite
+                        .getX() + ((i + 1) * spaceBetweenSquares) + (i * SQUARE_SIZE);
+                float squareY = sprite.getY() + sprite.getHeight() -
+                        ((j + 1) * spaceBetweenSquares) - (j * SQUARE_SIZE) - SQUARE_SIZE;
+                pos[i][j] = new Vector2(squareX, squareY);
             }
         }
+    }
+
+    public void autoSolve() {
+        Value timer = new Value();
+        Tween.to(timer, -1, .3f).setCallbackTriggers(TweenCallback.COMPLETE).setCallback(
+                new TweenCallback() {
+                    @Override
+                    public void onEvent(int type, BaseTween<?> source) {
+                        Array<Sols> sols = world.board.solutions();
+                        Sols c = sols.get(MathUtils.random(0, sols.size - 1));
+                        switch (c.d) {
+                            case 0:
+                                squares[c.x][c.y].slideDown();
+                                break;
+                            case 1:
+                                squares[c.x][c.y].slideLeft();
+                                break;
+                            case 2:
+                                squares[c.x][c.y].slideUp();
+                                break;
+                            case 3:
+                                squares[c.x][c.y].slideRight();
+                                break;
+                        }
+                    }
+                }).start(getManager());
+
     }
 }

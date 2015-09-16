@@ -310,6 +310,7 @@ public class GameObject {
 
     public void setPosition(Vector2 position1) {
         this.position = new Vector2(position1.cpy());
+        this.sprite.setPosition(position.x,position.y);
     }
 
     public void setScale(float scale) {
