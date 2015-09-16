@@ -284,6 +284,8 @@ public class Board extends GameObject {
     }
 
     public void swapTemp(int x1, int y1, int x2, int y2) {
+        Gdx.app.log("Cords", x1 + " " + y1 + " " + x2 + " " + y2);
+        tempM = squares.clone();
         Square temp = tempM[x1][y1];
         squares[x1][y1] = tempM[x2][y2];
         squares[x2][y2] = temp;
@@ -422,13 +424,18 @@ public class Board extends GameObject {
                     @Override
                     public void onEvent(int type, BaseTween<?> source) {
                         tempM = squares;
-                        for (int i = NUM_OF_SQUARES - 1; i >= 0; i--) {
+                        for (int i = 0; i < NUM_OF_SQUARES; i++) {
                             for (int j = NUM_OF_SQUARES - 1; j >= 0; j--) {
                                 Square cSquare = squares[i][j];
-                                if (cSquare.emptyB > 0) {
-                                    //swapCR(i, j, i, j + cSquare.emptyB);
+                                if (cSquare.emptyB != 0) {
+
                                     cSquare.row = j + cSquare.emptyB;
-                                    swapW(i, j, i, j + cSquare.emptyB);
+                                    Gdx.app.log("Cords",
+                                            i + " " + j + " " + i + " " + (cSquare.row));
+
+                                    //swapCR(i, j, i, j + cSquare.emptyB);
+                                    //swapW(i, j, i, j + cSquare.emptyB);
+                                    //swapTemp(i, j, i, j + cSquare.emptyB);
                                     //squares[i][cSquare.row] = squares[i][j];
                                     //cSquare.emptyB = 0;
 
@@ -450,6 +457,7 @@ public class Board extends GameObject {
                         }
                         world.board.calculateEmptyBelow();
                         world.board.calculateEmptyAbove();
+                        //changeArrayPos();
                         /*
                         for (int i = 0; i < NUM_OF_SQUARES; i++) {
                             for (int j = 0; j < NUM_OF_SQUARES - 1; j++) {
@@ -482,7 +490,7 @@ public class Board extends GameObject {
             for (int j = 0; j < NUM_OF_SQUARES; j++) {
                 if (squares[i][j].row != j) {
                     Gdx.app.log("Error in Rows", j + " " + squares[i][j].row);
-                    swapW(i, j, i, squares[i][j].row);
+                    squares[i][j] = createNewSquare(i, j, -1);
                 }
             }
         }
