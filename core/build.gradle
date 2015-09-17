@@ -6,6 +6,5 @@ eclipse.project {
     name = appName + "-core"
 }
 dependencies {
-    compile files('/Users/ManuGil/Documents/LibGDX/Juegos 15-20/Bitcoin Crush V2/libs/tween-engine-api.jar')
-    compile files('/Users/ManuGil/Documents/LibGDX/Juegos 15-20/Bitcoin Crush V2/libs/tween-engine-api-sources.jar')
+
 }

@@ -73,19 +73,21 @@ public class InputHandler implements InputProcessor {
         screenX = scaleX(screenX);
         screenY = scaleY(screenY);
         activeTouch++;
-        squares = world.board.squares;
-        touchDown = new Vector2(screenX, screenY);
-        touchedSquare = null;
-        for (int i = 0; i < NUM_OF_SQUARES; i++) {
-            for (int j = 0; j < NUM_OF_SQUARES; j++) {
-                if (squares[i][j].isTouchDown(screenX, screenY)) {
-                    touchedSquare = squares[i][j];
-                    //Gdx.app.log("TouchedSquare: ", i + " " + j);
+        if (activeTouch == 1) {
+            squares = world.board.squares;
+            touchDown = new Vector2(screenX, screenY);
+            touchedSquare = null;
+            for (int i = 0; i < NUM_OF_SQUARES; i++) {
+                for (int j = 0; j < NUM_OF_SQUARES; j++) {
+                    if (squares[i][j].isTouchDown(screenX, screenY)) {
+                        touchedSquare = squares[i][j];
+                        touchedSquare.select();
+                        //Gdx.app.log("TouchedSquare: ", i + " " + j);
+                    }
                 }
             }
         }
-
-        if(activeTouch==3){
+        if (activeTouch == 3) {
             if (Configuration.AUTOSOLVE) Configuration.AUTOSOLVE = false;
             else Configuration.AUTOSOLVE = true;
         }
@@ -114,6 +116,7 @@ public class InputHandler implements InputProcessor {
             } else {
                 //world.setDebutText("No Slide");
             }
+            touchedSquare.deSelect();
         }
 
         for (int i = 0; i < NUM_OF_SQUARES; i++) {

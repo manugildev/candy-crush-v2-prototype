@@ -1,6 +1,5 @@
 package gameobjects;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -46,11 +45,11 @@ public class Board extends GameObject {
                  TextureRegion texture, Color color, Shape shape) {
         super(world, x, y, width, height, texture, color, shape);
         sprite.setAlpha(.5f);
-        createSquares();
+        startGame();
 
     }
 
-    private void createSquares() {
+    private void startGame() {
         for (int x = 0; x < NUM_OF_SQUARES; ++x) {
             for (int y = 0; y < NUM_OF_SQUARES - 2; ++y) {
                 columns[x][y] = new Match();
@@ -62,38 +61,32 @@ public class Board extends GameObject {
             solCoords[x] = new Sols();
         }
         generate();
-        check();
-
         fillPosArray();
     }
 
     public void generate() {
-
         boolean repeat;
         long startTime = System.currentTimeMillis();
 
+        //GENERATING NEW BOARD
         do {
             repeat = false;
-
-            spaceBetweenSquares = (sprite.getWidth() -
-                    ((NUM_OF_SQUARES) * SQUARE_SIZE)) / (NUM_OF_SQUARES + 1);
+            spaceBetweenSquares = (sprite.getWidth() - ((NUM_OF_SQUARES) * SQUARE_SIZE)) /
+                    (NUM_OF_SQUARES + 1);
             for (int i = 0; i < NUM_OF_SQUARES; i++) {
                 for (int j = 0; j < NUM_OF_SQUARES; j++) {
                     squares[i][j] = createNewSquare(i, j, MathUtils.random(1, NUM_OF_TYPES - 1));
                 }
             }
 
-            if (check().size != 0) {
-                repeat = true;
-            } else if (solutions().size == 0) {
-                repeat = true;
-            }
+            if (check().size != 0) repeat = true;
+            else if (solutions().size == 0) repeat = true;
+
         } while (repeat);
 
         long stopTime = System.currentTimeMillis();
         long elapsedTime = stopTime - startTime;
         System.out.println("Time to Generate Board --> " + elapsedTime / 1000.0);
-
     }
 
 
@@ -129,11 +122,8 @@ public class Board extends GameObject {
 
     public MultipleMatch check() {
         int k;
-
         matches.clear();
         int currCoord = 0;
-
-        // First, we check each row (horizontal)
         for (int y = 0; y < NUM_OF_SQUARES; ++y) {
             for (int x = 0; x < NUM_OF_SQUARES - 2; ++x) {
                 Match currentRow = rows[y][x];
@@ -152,18 +142,15 @@ public class Board extends GameObject {
                         break;
                     }
                 }
-
                 if (currentRow.size > 2) {
                     matches.add(currentRow);
                 }
-
                 x = k - 1;
             }
         }
 
         for (int x = 0; x < NUM_OF_SQUARES; ++x) {
             for (int y = 0; y < NUM_OF_SQUARES - 2; ++y) {
-
                 Match currentColumn = columns[x][y];
                 currentColumn.clear();
                 matchCoords[currCoord].x = x;
@@ -182,11 +169,9 @@ public class Board extends GameObject {
                         break;
                     }
                 }
-
                 if (currentColumn.size > 2) {
                     matches.add(currentColumn);
                 }
-
                 y = k - 1;
             }
         }
@@ -207,10 +192,6 @@ public class Board extends GameObject {
             return results;
         }
 
-	    /*
-           Check all possible boards
-	       (49 * 4) + (32 * 2) although there are many duplicates
-	    */
         for (int x = 0; x < NUM_OF_SQUARES; ++x) {
             for (int y = 0; y < NUM_OF_SQUARES; ++y) {
 
@@ -274,12 +255,6 @@ public class Board extends GameObject {
         return results;
     }
 
-    public void swapW(int x1, int y1, int x2, int y2) {
-        Square temp = squares[x1][y1];
-        squares[x1][y1] = squares[x2][y2];
-        squares[x2][y2] = temp;
-    }
-
     public void swap(int x1, int y1, int x2, int y2) {
         Square temp = squares[x1][y1];
         squares[x1][y1] = squares[x2][y2];
@@ -289,31 +264,13 @@ public class Board extends GameObject {
         squares[x1][y1].setCoord(x1, y1);
     }
 
-    public void swapTemp(int x1, int y1, int x2, int y2) {
-        Gdx.app.log("Cords", x1 + " " + y1 + " " + x2 + " " + y2);
-        Square temp = tempM[x1][y1];
-        squares[x1][y1] = tempM[x2][y2];
+    public void swapWithoutCoords(int x1, int y1, int x2, int y2) {
+        Square temp = squares[x1][y1];
+        squares[x1][y1] = squares[x2][y2];
         squares[x2][y2] = temp;
-
-        squares[x2][y2].setCoord(x2, y2);
-        squares[x1][y1].setCoord(x1, y1);
     }
 
-    private void swapTemp(int x1, int y1) {
-
-        int x2 = tempM[x1][y1].column;
-        int y2 = tempM[x1][y1].row;
-
-        Gdx.app.log("Coords", x1 + " " + y1 + " " + x2 + " " + y2);
-        Square temp = tempM[x1][y1];
-        squares[x1][y1] = tempM[x2][y2];
-        squares[x2][y2] = temp;
-
-        squares[x2][y2].setCoord(x2, y2);
-        squares[x1][y1].setCoord(x1, y1);
-    }
-
-    private void swapCR(int x1, int y1, int x2, int y2) {
+    private void swapCoords(int x1, int y1, int x2, int y2) {
         squares[x1][y1].setCoord(x2, y2);
         squares[x2][y2].setCoord(x1, y1);
     }
@@ -330,7 +287,7 @@ public class Board extends GameObject {
             }
             timerToControl();
         } else {
-           if(Configuration.AUTOSOLVE) autoSolve();
+            if (Configuration.AUTOSOLVE) autoSolve();
         }
     }
 
@@ -364,30 +321,6 @@ public class Board extends GameObject {
         world.board.fall();
         world.board.refreshCR();
     }
-
-    /*public void fall() {
-        for (int i = 0; i < NUM_OF_SQUARES; i++) {
-            for (int j = NUM_OF_SQUARES - 1; j > 0; j--) {
-                if (squares[i][j].type == Square.Type.sqEmpty) {
-                    squares[i][j].swapXandY(squares, i, j, i, j - 1);
-                    break;
-                }
-            }
-        }
-    }*/
-
-    /*public void fall() {
-        for (int i = 0; i < NUM_OF_SQUARES; i++) {
-            for (int j = 0; j < NUM_OF_SQUARES - 1; j++) {
-                if (squares[i][j + 1].type == Square.Type.sqEmpty) {
-                    if (squares[i][j].type != Square.Type.sqEmpty) {
-                        squares[i][j].swapXandY(squares, i, j, i, j + 1);
-                        break;
-                    }
-                }
-            }
-        }
-    }*/
 
     public void calculateEmptyBelow() {
         for (int i = 0; i < NUM_OF_SQUARES; i++) {
@@ -428,10 +361,7 @@ public class Board extends GameObject {
                 if (cSquare.emptyB != 0) {
                     Square iSquare = squares[i][j + cSquare.emptyB];
                     cSquare.diffY = cSquare.getPosition().y - iSquare.getPosition().y;
-                } /*else if (cSquare.emptyA != 0) {
-                    Square iSquare = squares[i][j + cSquare.emptyA];
-                    cSquare.diffY = cSquare.getPosition().y - iSquare.getPosition().y;
-                }*/
+                }
             }
         }
     }

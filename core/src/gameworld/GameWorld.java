@@ -59,8 +59,6 @@ public class GameWorld {
         manager.update(delta);
         board.update(delta);
         top.update(delta);
-
-
     }
 
     public void render(SpriteBatch batch, ShapeRenderer shapeRenderer) {
@@ -85,7 +83,6 @@ public class GameWorld {
     }
 
     public void finish() {
-
         gameState = GameState.GAMEOVER;
         game.score = score;
         saveScoreLogic();

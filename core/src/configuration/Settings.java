@@ -6,6 +6,6 @@ public class Settings {
 
     public static int NUM_OF_SQUARES = 7;
     public static int NUM_OF_TYPES = 6;
-    public static int BOARD_MARGIN = 50;
-    public static int SQUARE_SIZE = 120;
+    public static int BOARD_MARGIN = 20;
+    public static int SQUARE_SIZE = 130;
 }

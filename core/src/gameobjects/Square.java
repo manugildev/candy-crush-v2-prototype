@@ -57,17 +57,12 @@ public class Square extends GameObject {
         super.update(delta);
         text.update(delta);
         text.setText(column + "" + row /*+ "\nE:" + emptyB*/);
-
-        //text.setText(column + "" + row + "\nE:" + emptyA);
-
-
-        //text.setText(column + "" + row + "\n" + diffY);
         text.setPosition(getPosition().x + 10, getPosition().y);
     }
 
     public void render(SpriteBatch batch, ShapeRenderer shapeRenderer) {
         super.render(batch, shapeRenderer);
-        //if (Configuration.DEBUG)
+        // if (Configuration.DEBUG)
         // if (sprite.getScaleX() == 1) text.render(batch, shapeRenderer, GameRenderer.fontShader);
     }
 
@@ -115,13 +110,17 @@ public class Square extends GameObject {
     }
 
     public void select() {
-        scale(1, 1.1f, .2f, .0f);
+        scale(1, 1.1f, .1f, .0f);
         isSelected = true;
+    }
+
+    public void deSelect() {
+        scale(1.1f, 1f, .1f, .0f);
+        isSelected = false;
     }
 
     public void slideRight() {
         if (checkValidMovement(column + 1, row)) {
-            //Gdx.app.log("Slide Right", column + " " + row + " " + (column + 1) + " " + row);
             swapXandYwithCheck(world.board.squares, column, row, column + 1, row);
         }
     }
@@ -129,21 +128,18 @@ public class Square extends GameObject {
 
     public void slideLeft() {
         if (checkValidMovement(column - 1, row)) {
-            //Gdx.app.log("Slide Left", column + " " + row + " " + (column - 1) + " " + row);
             swapXandYwithCheck(world.board.squares, column, row, column - 1, row);
         }
     }
 
     public void slideDown() {
         if (checkValidMovement(column, row - 1)) {
-            //Gdx.app.log("Slide Down", column + " " + row + " " + column + " " + (row - 1));
             swapXandYwithCheck(world.board.squares, column, row, column, row - 1);
         }
     }
 
     public void slideUp() {
         if (checkValidMovement(column, row + 1)) {
-            //Gdx.app.log("Slide Up", column + " " + row + " " + column + " " + (row + 1));
             swapXandYwithCheck(world.board.squares, column, row, column, row + 1);
         }
     }
@@ -162,8 +158,6 @@ public class Square extends GameObject {
     public void swapXandY(Square[][] squares, int x1, int y1, int x2, int y2) {
         Vector2 tempV = squares[x1][y1].getPosition().cpy();
         Vector2 tempV1 = squares[x2][y2].getPosition().cpy();
-        //squares[x1][y1].setPosition(squares[x2][y2].getPosition().cpy());
-        //squares[x2][y2].setPosition(tempV);
 
         squares[x1][y1].effectXY(tempV, tempV1, .2f, .0f);
         squares[x2][y2].effectXY(tempV1, tempV, .2f, .0f);
@@ -182,8 +176,6 @@ public class Square extends GameObject {
                                     final int x2, final int y2) {
         Vector2 tempV = squares[x1][y1].getPosition().cpy();
         Vector2 tempV1 = squares[x2][y2].getPosition().cpy();
-        //squares[x1][y1].setPosition(squares[x2][y2].getPosition().cpy());
-        //squares[x2][y2].setPosition(tempV);
 
         squares[x1][y1].effectXY(tempV, tempV1, .2f, .0f);
         squares[x2][y2].effectXY(tempV1, tempV, .2f, .0f);
