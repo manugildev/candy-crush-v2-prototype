@@ -29,9 +29,8 @@ public class GameWorld {
     public GameObject background, top;
     private GameState gameState;
     public TweenManager manager;
-
     public Board board;
-
+    public boolean boardBlocked = false;
 
     public GameWorld(MainGame game, float gameWidth, float gameHeight) {
         this.game = game;

@@ -31,6 +31,7 @@ public class InputHandler implements InputProcessor {
     public boolean keyDown(int keycode) {
 
         if (keycode == Input.Keys.R) {
+            world.board.destroyAll();
         } else if (keycode == Input.Keys.F) {
             world.board.fall();
         } else if (keycode == Input.Keys.D) {
@@ -73,7 +74,7 @@ public class InputHandler implements InputProcessor {
         screenX = scaleX(screenX);
         screenY = scaleY(screenY);
         activeTouch++;
-        if (activeTouch == 1) {
+        if (activeTouch == 1 && !world.boardBlocked) {
             squares = world.board.squares;
             touchDown = new Vector2(screenX, screenY);
             touchedSquare = null;
@@ -104,24 +105,25 @@ public class InputHandler implements InputProcessor {
         touchUp = new Vector2(screenX, screenY);
         angle = angleBetweenTwoPoints(touchDown, touchUp);
 
-        if (touchedSquare != null && touchedSquare.type != Square.Type.sqEmpty) {
-            if (angle > (360 - 45) || (angle < 45 && angle >= 0)) {
-                touchedSquare.slideRight();
-            } else if (angle >= 45 && angle < 135) {
-                touchedSquare.slideUp();
-            } else if (angle <= (360 - 135) && angle >= 135) {
-                touchedSquare.slideLeft();
-            } else if (angle >= (360 - 135) && angle < (360 - 45)) {
-                touchedSquare.slideDown();
-            } else {
-                //world.setDebutText("No Slide");
+        if (activeTouch == 0 && !world.boardBlocked) {
+            if (touchedSquare != null && touchedSquare.type != Square.Type.EMPTY) {
+                if (angle > (360 - 45) || (angle < 45 && angle >= 0)) {
+                    touchedSquare.slideRight();
+                } else if (angle >= 45 && angle < 135) {
+                    touchedSquare.slideUp();
+                } else if (angle <= (360 - 135) && angle >= 135) {
+                    touchedSquare.slideLeft();
+                } else if (angle >= (360 - 135) && angle < (360 - 45)) {
+                    touchedSquare.slideDown();
+                } else {
+                }
+                touchedSquare.deSelect();
             }
-            touchedSquare.deSelect();
-        }
 
-        for (int i = 0; i < NUM_OF_SQUARES; i++) {
-            for (int j = 0; j < NUM_OF_SQUARES; j++) {
-                squares[i][j].isTouchUp(screenX, screenY);
+            for (int i = 0; i < NUM_OF_SQUARES; i++) {
+                for (int j = 0; j < NUM_OF_SQUARES; j++) {
+                    squares[i][j].isTouchUp(screenX, screenY);
+                }
             }
         }
         return false;

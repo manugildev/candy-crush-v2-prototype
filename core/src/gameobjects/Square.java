@@ -1,9 +1,11 @@
 package gameobjects;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Align;
 
@@ -22,17 +24,19 @@ import ui.Text;
 public class Square extends GameObject {
 
 
-    public enum Type {
-        sqEmpty, sqWhite, sqRed, sqPurple, sqOrange, sqGreen, sqYellow, sqBlue
-    }
-
-    public Type type;
     public int column, row;
     private Text text;
-    public int typeN, emptyB = 0, emptyA = 0;
+    public int typeN, emptyB = 0;
     public float diffY = 0;
-
+    private Sprite backSprite, bonusSprite;
     public boolean isSelected = false;
+
+    public Bonus bonus;
+    public Type type;
+
+    public enum Type {EMPTY, WHITE, RED, PURPLE, ORANGE, GREEN, YELLOW, BLUE}
+
+    public enum Bonus {NORMAL, RAY, BOMB, BITCOIN}
 
     public Square(GameWorld world, float x, float y, float width, float height,
                   TextureRegion texture, Color color, Shape shape, int column, int row, int typeN) {
@@ -46,11 +50,27 @@ public class Square extends GameObject {
         text = new Text(world, x + 10, y, width, height, texture, color, column + "" + row,
                 AssetLoader.font08, FlatColors.WHITE, 10,
                 Align.left);
+
+        backSprite = new Sprite(AssetLoader.square);
+        backSprite.setColor(FlatColors.WHITE);
+        backSprite.setSize(width, height);
+
+        bonusSprite = new Sprite(AssetLoader.square);
+        bonusSprite.setColor(FlatColors.WHITE);
+        bonusSprite.setSize(width / 3, height / 3);
+        bonusSprite.setScale(1);
+        bonusSprite.setOriginCenter();
+
+        if (Math.random() < 0.1f) {
+            setBonus(MathUtils.random(1, Bonus.values().length - 1));
+        } else {
+            setBonus(0);
+        }
+
     }
 
     public Square(GameWorld world) {
         super(world, 0, 0, 0, 0, AssetLoader.square, FlatColors.WHITE, Shape.RECTANGLE);
-
     }
 
     public void update(float delta) {
@@ -58,10 +78,20 @@ public class Square extends GameObject {
         text.update(delta);
         text.setText(column + "" + row /*+ "\nE:" + emptyB*/);
         text.setPosition(getPosition().x + 10, getPosition().y);
+        if (isSelected) backSprite.setPosition(sprite.getX(), sprite.getY());
+        if (bonus != Bonus.NORMAL) {
+            bonusSprite.setPosition(
+                    sprite.getX() + (sprite.getWidth() / 2) - (bonusSprite.getWidth() / 2),
+                    sprite.getY() + (sprite.getHeight() / 2) - (bonusSprite.getHeight() / 2));
+            bonusSprite.setScale(sprite.getScaleX(), sprite.getScaleY());
+            bonusSprite.setAlpha(sprite.getColor().a);
+        }
     }
 
     public void render(SpriteBatch batch, ShapeRenderer shapeRenderer) {
+        if (isSelected) backSprite.draw(batch);
         super.render(batch, shapeRenderer);
+        if (bonus != Bonus.NORMAL) bonusSprite.draw(batch);
         // if (Configuration.DEBUG)
         // if (sprite.getScaleX() == 1) text.render(batch, shapeRenderer, GameRenderer.fontShader);
     }
@@ -71,38 +101,6 @@ public class Square extends GameObject {
         this.row = row;
     }
 
-    public Type numToType(int num) {
-        FlatColors.organizeColors();
-        typeN = num;
-        switch (num) {
-            case 1:
-                sprite.setColor(FlatColors.colors.get(num - 1));
-                return Type.sqWhite;
-            case 2:
-                sprite.setColor(FlatColors.colors.get(num - 1));
-                return Type.sqRed;
-            case 3:
-                sprite.setColor(FlatColors.colors.get(num - 1));
-                return Type.sqPurple;
-            case 4:
-                sprite.setColor(FlatColors.colors.get(num - 1));
-                return Type.sqOrange;
-            case 5:
-                sprite.setColor(FlatColors.colors.get(num - 1));
-                return Type.sqGreen;
-            case 6:
-                sprite.setColor(FlatColors.colors.get(num - 1));
-                return Type.sqYellow;
-            case 7:
-                sprite.setColor(FlatColors.colors.get(num - 1));
-                return Type.sqBlue;
-            default:
-                //sprite.setColor(FlatColors.GREY);
-                return Type.sqEmpty;
-
-
-        }
-    }
 
     public void start(float v) {
         fadeIn(.5f, v);
@@ -110,12 +108,12 @@ public class Square extends GameObject {
     }
 
     public void select() {
-        scale(1, 1.1f, .1f, .0f);
+        scale(1, .9f, .1f, .0f);
         isSelected = true;
     }
 
     public void deSelect() {
-        scale(1.1f, 1f, .1f, .0f);
+        scale(0.9f, 1f, .1f, .0f);
         isSelected = false;
     }
 
@@ -188,7 +186,6 @@ public class Square extends GameObject {
         squares[x2][y2].setCoord(x2, y2);
         squares[x1][y1].setCoord(x1, y1);
 
-
         Value timer = new Value();
         Tween.to(timer, -1, .21f).target(1).setCallbackTriggers(TweenCallback.COMPLETE)
                 .setCallback(new TweenCallback() {
@@ -216,14 +213,19 @@ public class Square extends GameObject {
     }
 
     public void dissapear() {
-        scale(1, 0, .3f, .1f);
-        fadeOut(.3f, .1f);
-        setType(-1);
-
+        if (type != Type.EMPTY) {
+            scale(1, 0, .3f, .1f);
+            fadeOut(.3f, .1f);
+            setType(-1);
+        }
     }
 
     public void setType(int i) {
         type = numToType(i);
+    }
+
+    public void setBonus(int i) {
+        bonus = numToBonus(i);
     }
 
     public void fallingEffect(Vector2 vector2, float delay) {
@@ -231,5 +233,55 @@ public class Square extends GameObject {
         effectY(vector2.y + 300, vector2.y, .3f, delay);
         fadeIn(.3f, delay);
         scale(0, 1, .3f, delay);
+    }
+
+    public Type numToType(int num) {
+        FlatColors.organizeColors();
+        typeN = num;
+        switch (num) {
+            case 1:
+                sprite.setColor(FlatColors.colors.get(num - 1));
+                return Type.WHITE;
+            case 2:
+                sprite.setColor(FlatColors.colors.get(num - 1));
+                return Type.RED;
+            case 3:
+                sprite.setColor(FlatColors.colors.get(num - 1));
+                return Type.PURPLE;
+            case 4:
+                sprite.setColor(FlatColors.colors.get(num - 1));
+                return Type.ORANGE;
+            case 5:
+                sprite.setColor(FlatColors.colors.get(num - 1));
+                return Type.GREEN;
+            case 6:
+                sprite.setColor(FlatColors.colors.get(num - 1));
+                return Type.YELLOW;
+            case 7:
+                sprite.setColor(FlatColors.colors.get(num - 1));
+                return Type.BLUE;
+            default:
+                return Type.EMPTY;
+        }
+    }
+
+    public Bonus numToBonus(int num) {
+        switch (num) {
+            case 0:
+                bonusSprite.setColor(FlatColors.WHITE);
+                return Bonus.NORMAL;
+            case 1:
+                bonusSprite.setColor(FlatColors.DARK_WHITE);
+                return Bonus.RAY;
+            case 2:
+                bonusSprite.setColor(FlatColors.EVEN_DARK_RED);
+                return Bonus.BOMB;
+            case 3:
+                bonusSprite.setColor(FlatColors.YELLOW);
+                return Bonus.BITCOIN;
+            default:
+                bonusSprite.setColor(FlatColors.WHITE);
+                return Bonus.NORMAL;
+        }
     }
 }

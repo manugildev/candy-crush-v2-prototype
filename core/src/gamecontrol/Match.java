@@ -32,4 +32,11 @@ public class Match extends Array<Coord> {
         }
         return string;
     }
+
+    public boolean isHorizontal() {
+        if (get(0).x == get(1).x) {
+            return false;
+        }
+        return true;
+    }
 }

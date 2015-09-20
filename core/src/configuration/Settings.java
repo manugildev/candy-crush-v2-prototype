@@ -8,4 +8,5 @@ public class Settings {
     public static int NUM_OF_TYPES = 6;
     public static int BOARD_MARGIN = 20;
     public static int SQUARE_SIZE = 130;
+
 }

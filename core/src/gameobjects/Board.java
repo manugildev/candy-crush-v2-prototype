@@ -67,7 +67,6 @@ public class Board extends GameObject {
     public void generate() {
         boolean repeat;
         long startTime = System.currentTimeMillis();
-
         //GENERATING NEW BOARD
         do {
             repeat = false;
@@ -133,7 +132,7 @@ public class Board extends GameObject {
                 currentRow.add(matchCoords[currCoord]);
                 ++currCoord;
                 for (k = x + 1; k < NUM_OF_SQUARES; ++k) {
-                    if (squares[x][y].type == squares[k][y].type && squares[x][y].type != Square.Type.sqEmpty) {
+                    if (squares[x][y].type == squares[k][y].type && squares[x][y].type != Square.Type.EMPTY) {
                         matchCoords[currCoord].x = k;
                         matchCoords[currCoord].y = y;
                         currentRow.add(matchCoords[currCoord]);
@@ -160,7 +159,7 @@ public class Board extends GameObject {
 
                 for (k = y + 1; k < NUM_OF_SQUARES; ++k) {
                     if (squares[x][y].type == squares[x][k].type &&
-                            squares[x][y].type != (Square.Type.sqEmpty)) {
+                            squares[x][y].type != (Square.Type.EMPTY)) {
                         matchCoords[currCoord].x = x;
                         matchCoords[currCoord].y = k;
                         currentColumn.add(matchCoords[currCoord]);
@@ -276,22 +275,79 @@ public class Board extends GameObject {
     }
 
     public void control() {
+
+        world.boardBlocked = true;
         if (check().size != 0) {
             MultipleMatch matches = check();
             for (int i = 0; i < matches.size; i++) {
                 Match match = matches.get(i);
-                for (int j = 0; j < match.size; j++) {
-                    Coord c = match.get(j);
-                    squares[c.x][c.y].dissapear();
+                if (matchHasBonus(match)) {
+                    dissapearMatchWithBonus(match);
+                } else {
+                    for (int j = 0; j < match.size; j++) {
+                        Coord c = match.get(j);
+                        squares[c.x][c.y].dissapear();
+                    }
                 }
             }
             timerToControl();
         } else {
+            world.boardBlocked = false;
             if (Configuration.AUTOSOLVE) autoSolve();
         }
     }
 
+    private void dissapearMatchWithBonus(Match match) {
+        for (int j = 0; j < match.size; j++) {
+            Coord c = match.get(j);
+            switch (squares[c.x][c.y].bonus) {
+                case RAY:
+                    if (match.isHorizontal()) {
+                        for (int w = 0; w < NUM_OF_SQUARES; w++) {
+                            squares[w][c.y].dissapear();
+                        }
+                    } else {
+                        for (int w = 0; w < NUM_OF_SQUARES; w++) {
+                            squares[c.x][w].dissapear();
+                        }
+                    }
+                    squares[c.x][c.y].dissapear();
+                    break;
+                case BOMB:
+                    for (int w = c.x - 1; w <= c.x + 1; w++) {
+                        for (int l = c.y - 1; l <= c.y + 1; l++) {
+                            if (coordExists(w, l))
+                                squares[w][l].dissapear();
+                        }
+                    }
+                    break;
+                case BITCOIN:
+                    squares[c.x][c.y].dissapear();
+                    break;
+                default:
+                    squares[c.x][c.y].dissapear();
+                    break;
+            }
+        }
+    }
+
+    private boolean coordExists(int w, int l) {
+        if (w >= 0 && w < NUM_OF_SQUARES && l >= 0 && l < NUM_OF_SQUARES) return true;
+        else return false;
+    }
+
+    private boolean matchHasBonus(Match match) {
+        for (int j = 0; j < match.size; j++) {
+            Coord c = match.get(j);
+            if (squares[c.x][c.y].bonus != Square.Bonus.NORMAL) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void timercontrol() {
+        world.boardBlocked = true;
         Value timer = new Value();
         Tween.to(timer, -1, .31f).setCallbackTriggers(TweenCallback.COMPLETE).setCallback(
                 new TweenCallback() {
@@ -304,6 +360,7 @@ public class Board extends GameObject {
 
 
     private void timerToControl() {
+        world.boardBlocked = true;
         Value timer = new Value();
         Tween.to(timer, -1, .1f).setCallbackTriggers(TweenCallback.COMPLETE).setCallback(
                 new TweenCallback() {
@@ -327,9 +384,9 @@ public class Board extends GameObject {
             for (int j = 0; j < NUM_OF_SQUARES; j++) {
                 Square cSquare = squares[i][j];
                 cSquare.emptyB = 0;
-                if (cSquare.type != Square.Type.sqEmpty)
+                if (cSquare.type != Square.Type.EMPTY)
                     for (int l = j + 1; l < NUM_OF_SQUARES; l++) {
-                        if (squares[i][l].type == Square.Type.sqEmpty) {
+                        if (squares[i][l].type == Square.Type.EMPTY) {
                             cSquare.emptyB++;
                         }
                     }
@@ -341,10 +398,10 @@ public class Board extends GameObject {
         for (int i = NUM_OF_SQUARES - 1; i >= 0; i--) {
             for (int j = NUM_OF_SQUARES - 1; j >= 1; j--) {
                 Square cSquare = squares[i][j];
-                if (cSquare.type == Square.Type.sqEmpty) {
+                if (cSquare.type == Square.Type.EMPTY) {
                     cSquare.emptyB = 0;
                     for (int l = j - 1; l >= 0; l--) {
-                        if (squares[i][l].type != Square.Type.sqEmpty) {
+                        if (squares[i][l].type != Square.Type.EMPTY) {
                             cSquare.emptyB--;
                         }
                     }
@@ -398,7 +455,7 @@ public class Board extends GameObject {
                         for (int i = NUM_OF_SQUARES - 1; i >= 0; i--) {
                             for (int j = NUM_OF_SQUARES - 1; j >= 0; j--) {
                                 Square cSquare = squares[i][j];
-                                if (cSquare.type == Square.Type.sqEmpty) {
+                                if (cSquare.type == Square.Type.EMPTY) {
                                     //TODO: CHANGE Values
                                     squares[i][j] = createNewSquare(i, j,
                                             MathUtils.random(1, NUM_OF_TYPES - 1));
@@ -406,6 +463,8 @@ public class Board extends GameObject {
                                 }
                             }
                         }
+
+                        world.boardBlocked = false;
                         timercontrol();
                     }
 
@@ -460,5 +519,14 @@ public class Board extends GameObject {
                     }
                 }).start(getManager());
 
+    }
+
+    public void destroyAll() {
+        for (int i = 0; i < NUM_OF_SQUARES; i++) {
+            for (int j = 0; j < NUM_OF_SQUARES; j++) {
+                squares[i][j].dissapear();
+            }
+        }
+        timerToControl();
     }
 }
