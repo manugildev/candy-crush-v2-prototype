@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import configuration.Configuration;
 import gameobjects.Square;
 
-import static configuration.Settings.NUM_OF_SQUARES;
+import static configuration.Settings.*;
 
 public class InputHandler implements InputProcessor {
 
@@ -50,6 +50,17 @@ public class InputHandler implements InputProcessor {
             if (Configuration.AUTOSOLVE) Configuration.AUTOSOLVE = false;
             else Configuration.AUTOSOLVE = true;
         } else if (keycode == Input.Keys.LEFT) {
+            NUM_OF_SQUARES_X--;
+            world.goToGameScreen();
+        } else if (keycode == Input.Keys.RIGHT) {
+            NUM_OF_SQUARES_X++;
+            world.goToGameScreen();
+        } else if (keycode == Input.Keys.UP) {
+            NUM_OF_SQUARES_Y++;
+            world.goToGameScreen();
+        } else if (keycode == Input.Keys.DOWN) {
+            NUM_OF_SQUARES_Y--;
+            world.goToGameScreen();
         }
         return false;
     }
@@ -57,9 +68,6 @@ public class InputHandler implements InputProcessor {
 
     @Override
     public boolean keyUp(int keycode) {
-        if (keycode == Input.Keys.RIGHT) {
-        } else if (keycode == Input.Keys.LEFT) {
-        }
         return false;
     }
 
@@ -78,8 +86,8 @@ public class InputHandler implements InputProcessor {
             squares = world.board.squares;
             touchDown = new Vector2(screenX, screenY);
             touchedSquare = null;
-            for (int i = 0; i < NUM_OF_SQUARES; i++) {
-                for (int j = 0; j < NUM_OF_SQUARES; j++) {
+            for (int i = 0; i < NUM_OF_SQUARES_X; i++) {
+                for (int j = 0; j < NUM_OF_SQUARES_Y; j++) {
                     if (squares[i][j].isTouchDown(screenX, screenY)) {
                         touchedSquare = squares[i][j];
                         touchedSquare.select();
@@ -115,13 +123,12 @@ public class InputHandler implements InputProcessor {
                     touchedSquare.slideLeft();
                 } else if (angle >= (360 - 135) && angle < (360 - 45)) {
                     touchedSquare.slideDown();
-                } else {
                 }
                 touchedSquare.deSelect();
             }
 
-            for (int i = 0; i < NUM_OF_SQUARES; i++) {
-                for (int j = 0; j < NUM_OF_SQUARES; j++) {
+            for (int i = 0; i < NUM_OF_SQUARES_X; i++) {
+                for (int j = 0; j < NUM_OF_SQUARES_Y; j++) {
                     squares[i][j].isTouchUp(screenX, screenY);
                 }
             }

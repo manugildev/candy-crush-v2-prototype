@@ -123,7 +123,7 @@ public class GameWorld {
         float boardX = gameWidth / 2 - (boardW / 2);
         float boardY = gameHeight / 2 - (boardH / 2);
         board = new Board(this, boardX, boardY, boardW, boardH, AssetLoader.square,
-                FlatColors.BLACK,
+                FlatColors.DARK_BLACK,
                 GameObject.Shape.RECTANGLE);
         board.start();
     }

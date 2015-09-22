@@ -148,9 +148,9 @@ public class Square extends GameObject {
 
     private boolean checkValidMovement(int futureRow, int futureColumn) {
         //Gdx.app.log(" Slide", column + " " + row + " " + futureColumn + " " + futureRow);
-        if (futureRow < 0 || futureRow > Settings.NUM_OF_SQUARES - 1) {
+        if (futureRow < 0 || futureRow > Settings.NUM_OF_SQUARES_X - 1) {
             return false;
-        } else if (futureColumn < 0 || futureColumn > Settings.NUM_OF_SQUARES - 1) {
+        } else if (futureColumn < 0 || futureColumn > Settings.NUM_OF_SQUARES_Y - 1) {
             return false;
         } else {
             return true;

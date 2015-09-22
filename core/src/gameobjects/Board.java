@@ -21,45 +21,51 @@ import helpers.AssetLoader;
 import helpers.FlatColors;
 import tweens.Value;
 
-import static configuration.Settings.NUM_OF_SQUARES;
-import static configuration.Settings.NUM_OF_TYPES;
-import static configuration.Settings.SPACE_BETWEEN_SQUARES;
-import static configuration.Settings.SQUARE_SIZE;
+import static configuration.Settings.*;
 
 public class Board extends GameObject {
 
-    public Square[][] squares = new Square[NUM_OF_SQUARES][NUM_OF_SQUARES];
+    public Square[][] squares = new Square[NUM_OF_SQUARES_X][NUM_OF_SQUARES_Y];
 
-    Vector2[][] pos = new Vector2[NUM_OF_SQUARES][NUM_OF_SQUARES];
+    Vector2[][] pos = new Vector2[NUM_OF_SQUARES_X][NUM_OF_SQUARES_Y];
 
     private MultipleMatch matches = new MultipleMatch();
-    private Match[][] columns = new Match[NUM_OF_SQUARES][NUM_OF_SQUARES - 2];
-    private Match[][] rows = new Match[NUM_OF_SQUARES][NUM_OF_SQUARES - 2];
+    private Match[][] columns, rows;
     private Coord[] matchCoords = new Coord[1000];
     private Sols[] solCoords = new Sols[1000];
     private Array<Sols> results = new Array<Sols>();
 
-    float spaceBetweenSquares, diff;
+    float spaceBetweenSquares, diffX, diffY;
+    int higherNUM;
     Array<Float> delays = new Array<Float>();
 
     public Board(GameWorld world, float x, float y, float width, float height,
                  TextureRegion texture, Color color, Shape shape) {
         super(world, x, y, width, height, texture, color, shape);
-
-        delays.addAll(0.01f, 0.02f, 0.03f, 0.04f, 0.05f, 0.06f, 0.07f, 0.08f, 0.09f);
+        delays.addAll(0.01f, 0.02f, 0.03f, 0.04f, 0.05f, 0.06f, 0.07f, 0.08f, 0.09f, 0.1f, 0.11f,
+                0.12f);
         delays.reverse();
-        sprite.setAlpha(.5f);
+        sprite.setAlpha(.85f);
+
+        if (NUM_OF_SQUARES_X > NUM_OF_SQUARES_Y) higherNUM = NUM_OF_SQUARES_X;
+        else higherNUM = NUM_OF_SQUARES_Y;
+
+        columns = new Match[higherNUM][higherNUM];
+        rows = new Match[higherNUM][higherNUM];
         startGame();
 
     }
 
     private void startGame() {
-        for (int x = 0; x < NUM_OF_SQUARES; ++x) {
-            for (int y = 0; y < NUM_OF_SQUARES - 2; ++y) {
+        for (int x = 0; x < higherNUM; ++x) {
+            for (int y = 0; y < higherNUM; ++y) {
                 columns[x][y] = new Match();
                 rows[x][y] = new Match();
+
             }
         }
+
+
         for (int x = 0; x < 1000; ++x) {
             matchCoords[x] = new Coord();
             solCoords[x] = new Sols();
@@ -74,15 +80,17 @@ public class Board extends GameObject {
 
         //GENERAL CALCULATIONS
         spaceBetweenSquares = SPACE_BETWEEN_SQUARES;
-        diff = (sprite.getWidth() - (NUM_OF_SQUARES * SQUARE_SIZE)
-                - (spaceBetweenSquares * (NUM_OF_SQUARES + 1))) / 2;
+        diffX = (sprite.getWidth() - (NUM_OF_SQUARES_X * SQUARE_SIZE)
+                - (spaceBetweenSquares * (NUM_OF_SQUARES_X + 1))) / 2;
+        diffY = (sprite.getHeight() - (NUM_OF_SQUARES_Y * SQUARE_SIZE)
+                - (spaceBetweenSquares * (NUM_OF_SQUARES_Y + 1))) / 2;
 
         //GENERATING NEW BOARD
         do {
             repeat = false;
             //spaceBetweenSquares = (sprite.getWidth() - ((NUM_OF_SQUARES) * SQUARE_SIZE)) / (NUM_OF_SQUARES + 1);
-            for (int i = 0; i < NUM_OF_SQUARES; i++) {
-                for (int j = 0; j < NUM_OF_SQUARES; j++) {
+            for (int i = 0; i < NUM_OF_SQUARES_X; i++) {
+                for (int j = 0; j < NUM_OF_SQUARES_Y; j++) {
                     squares[i][j] = createNewSquare(i, j, MathUtils.random(1, NUM_OF_TYPES - 1));
                 }
             }
@@ -100,8 +108,8 @@ public class Board extends GameObject {
     @Override
     public void update(float delta) {
         super.update(delta);
-        for (int i = 0; i < NUM_OF_SQUARES; i++) {
-            for (int j = 0; j < NUM_OF_SQUARES; j++) {
+        for (int i = 0; i < NUM_OF_SQUARES_X; i++) {
+            for (int j = 0; j < NUM_OF_SQUARES_Y; j++) {
                 squares[i][j].update(delta);
             }
         }
@@ -110,19 +118,19 @@ public class Board extends GameObject {
     @Override
     public void render(SpriteBatch batch, ShapeRenderer shapeRenderer) {
         super.render(batch, shapeRenderer);
-        for (int i = NUM_OF_SQUARES - 1; i >= 0; i--) {
-            for (int j = NUM_OF_SQUARES - 1; j >= 0; j--) {
+        for (int i = NUM_OF_SQUARES_X - 1; i >= 0; i--) {
+            for (int j = NUM_OF_SQUARES_Y - 1; j >= 0; j--) {
                 squares[i][j].render(batch, shapeRenderer);
             }
         }
     }
 
     public void start() {
-        fadeIn(.5f, .2f);
-        scale(0.8f, 1, .5f, .2f);
-        for (int i = 0; i < NUM_OF_SQUARES; i++) {
-            for (int j = 0; j < NUM_OF_SQUARES; j++) {
-                squares[i][j].start(((i * j) * 0.025f) + 1f);
+        fadeIn(.2f, .1f);
+        scale(0.8f, 1, .2f, .2f);
+        for (int i = 0; i < NUM_OF_SQUARES_X; i++) {
+            for (int j = 0; j < NUM_OF_SQUARES_Y; j++) {
+                squares[i][j].start(((i * j) * 0.015f) + .5f);
             }
         }
     }
@@ -131,15 +139,15 @@ public class Board extends GameObject {
         int k;
         matches.clear();
         int currCoord = 0;
-        for (int y = 0; y < NUM_OF_SQUARES; ++y) {
-            for (int x = 0; x < NUM_OF_SQUARES - 2; ++x) {
+        for (int y = 0; y < NUM_OF_SQUARES_Y; ++y) {
+            for (int x = 0; x < NUM_OF_SQUARES_X - 2; ++x) {
                 Match currentRow = rows[y][x];
                 currentRow.clear();
                 matchCoords[currCoord].x = x;
                 matchCoords[currCoord].y = y;
                 currentRow.add(matchCoords[currCoord]);
                 ++currCoord;
-                for (k = x + 1; k < NUM_OF_SQUARES; ++k) {
+                for (k = x + 1; k < NUM_OF_SQUARES_X; ++k) {
                     if (squares[x][y].type == squares[k][y].type && squares[x][y].type != Square.Type.EMPTY) {
                         matchCoords[currCoord].x = k;
                         matchCoords[currCoord].y = y;
@@ -156,8 +164,8 @@ public class Board extends GameObject {
             }
         }
 
-        for (int x = 0; x < NUM_OF_SQUARES; ++x) {
-            for (int y = 0; y < NUM_OF_SQUARES - 2; ++y) {
+        for (int x = 0; x < NUM_OF_SQUARES_X; ++x) {
+            for (int y = 0; y < NUM_OF_SQUARES_Y - 2; ++y) {
                 Match currentColumn = columns[x][y];
                 currentColumn.clear();
                 matchCoords[currCoord].x = x;
@@ -165,7 +173,7 @@ public class Board extends GameObject {
                 currentColumn.add(matchCoords[currCoord]);
                 ++currCoord;
 
-                for (k = y + 1; k < NUM_OF_SQUARES; ++k) {
+                for (k = y + 1; k < NUM_OF_SQUARES_Y; ++k) {
                     if (squares[x][y].type == squares[x][k].type &&
                             squares[x][y].type != (Square.Type.EMPTY)) {
                         matchCoords[currCoord].x = x;
@@ -199,8 +207,8 @@ public class Board extends GameObject {
             return results;
         }
 
-        for (int x = 0; x < NUM_OF_SQUARES; ++x) {
-            for (int y = 0; y < NUM_OF_SQUARES; ++y) {
+        for (int x = 0; x < NUM_OF_SQUARES_X; ++x) {
+            for (int y = 0; y < NUM_OF_SQUARES_Y; ++y) {
 
                 // Swap with the one above and check
                 if (y > 0) {
@@ -217,7 +225,7 @@ public class Board extends GameObject {
                 }
 
                 // Swap with the one below and check
-                if (y < NUM_OF_SQUARES - 1) {
+                if (y < NUM_OF_SQUARES_Y - 1) {
                     swap(x, y, x, y + 1);
                     if (check().size != 0) {
                         solCoords[currCoord].x = x;
@@ -245,7 +253,7 @@ public class Board extends GameObject {
                 }
 
                 // Swap with the one on the right and check
-                if (x < NUM_OF_SQUARES - 1) {
+                if (x < NUM_OF_SQUARES_X - 1) {
                     swap(x, y, x + 1, y);
                     if (check().size != 0) {
                         solCoords[currCoord].x = x;
@@ -307,14 +315,23 @@ public class Board extends GameObject {
     private void dissapearMatchWithBonus(Match match) {
         for (int j = 0; j < match.size; j++) {
             Coord c = match.get(j);
+            Square.Type type = squares[c.x][c.y].type;
             switch (squares[c.x][c.y].bonus) {
+                case BITCOIN:
+                    for (int w = NUM_OF_SQUARES_X - 1; w >= 0; w--) {
+                        for (int l = NUM_OF_SQUARES_Y - 1; l >= 0; l--) {
+                            if (squares[w][l].type == type)
+                                squares[w][l].dissapear();
+                        }
+                    }
+                    break;
                 case RAY:
                     if (match.isHorizontal()) {
-                        for (int w = 0; w < NUM_OF_SQUARES; w++) {
+                        for (int w = 0; w < NUM_OF_SQUARES_X; w++) {
                             squares[w][c.y].dissapear();
                         }
                     } else {
-                        for (int w = 0; w < NUM_OF_SQUARES; w++) {
+                        for (int w = 0; w < NUM_OF_SQUARES_Y; w++) {
                             squares[c.x][w].dissapear();
                         }
                     }
@@ -328,9 +345,7 @@ public class Board extends GameObject {
                         }
                     }
                     break;
-                case BITCOIN:
-                    squares[c.x][c.y].dissapear();
-                    break;
+
                 default:
                     squares[c.x][c.y].dissapear();
                     break;
@@ -339,7 +354,7 @@ public class Board extends GameObject {
     }
 
     private boolean coordExists(int w, int l) {
-        if (w >= 0 && w < NUM_OF_SQUARES && l >= 0 && l < NUM_OF_SQUARES) return true;
+        if (w >= 0 && w < NUM_OF_SQUARES_X && l >= 0 && l < NUM_OF_SQUARES_Y) return true;
         else return false;
     }
 
@@ -387,12 +402,12 @@ public class Board extends GameObject {
     }
 
     public void calculateEmptyBelow() {
-        for (int i = 0; i < NUM_OF_SQUARES; i++) {
-            for (int j = 0; j < NUM_OF_SQUARES; j++) {
+        for (int i = 0; i < NUM_OF_SQUARES_X; i++) {
+            for (int j = 0; j < NUM_OF_SQUARES_Y; j++) {
                 Square cSquare = squares[i][j];
                 cSquare.emptyB = 0;
                 if (cSquare.type != Square.Type.EMPTY)
-                    for (int l = j + 1; l < NUM_OF_SQUARES; l++) {
+                    for (int l = j + 1; l < NUM_OF_SQUARES_Y; l++) {
                         if (squares[i][l].type == Square.Type.EMPTY) {
                             cSquare.emptyB++;
                         }
@@ -402,8 +417,8 @@ public class Board extends GameObject {
     }
 
     public void calculateEmptyAbove() {
-        for (int i = NUM_OF_SQUARES - 1; i >= 0; i--) {
-            for (int j = NUM_OF_SQUARES - 1; j >= 1; j--) {
+        for (int i = NUM_OF_SQUARES_X - 1; i >= 0; i--) {
+            for (int j = NUM_OF_SQUARES_Y - 1; j >= 1; j--) {
                 Square cSquare = squares[i][j];
                 if (cSquare.type == Square.Type.EMPTY) {
                     cSquare.emptyB = 0;
@@ -418,8 +433,8 @@ public class Board extends GameObject {
     }
 
     public void calculateDiffBelow() {
-        for (int i = 0; i < NUM_OF_SQUARES; i++) {
-            for (int j = 0; j < NUM_OF_SQUARES; j++) {
+        for (int i = 0; i < NUM_OF_SQUARES_X; i++) {
+            for (int j = 0; j < NUM_OF_SQUARES_Y; j++) {
                 Square cSquare = squares[i][j];
                 cSquare.diffY = 0;
                 if (cSquare.emptyB != 0) {
@@ -431,8 +446,8 @@ public class Board extends GameObject {
     }
 
     public void fall() {
-        for (int i = 0; i < NUM_OF_SQUARES; i++) {
-            for (int j = 0; j < NUM_OF_SQUARES; j++) {
+        for (int i = 0; i < NUM_OF_SQUARES_X; i++) {
+            for (int j = 0; j < NUM_OF_SQUARES_Y; j++) {
                 Square cSquare = squares[i][j];
                 if (cSquare.diffY != 0) {
                     cSquare.effectY(cSquare.getPosition().y,
@@ -449,8 +464,8 @@ public class Board extends GameObject {
                     @Override
                     public void onEvent(int type, BaseTween<?> source) {
                         fillPosArray();
-                        for (int i = NUM_OF_SQUARES - 1; i >= 0; i--) {
-                            for (int j = NUM_OF_SQUARES - 1; j >= 0; j--) {
+                        for (int i = NUM_OF_SQUARES_X - 1; i >= 0; i--) {
+                            for (int j = NUM_OF_SQUARES_Y - 1; j >= 0; j--) {
                                 Square cSquare = squares[i][j];
                                 if (cSquare.emptyB >= 0) {
                                     cSquare.row = j + cSquare.emptyB;
@@ -459,8 +474,8 @@ public class Board extends GameObject {
                             }
                         }
 
-                        for (int i = NUM_OF_SQUARES - 1; i >= 0; i--) {
-                            for (int j = NUM_OF_SQUARES - 1; j >= 0; j--) {
+                        for (int i = NUM_OF_SQUARES_X - 1; i >= 0; i--) {
+                            for (int j = NUM_OF_SQUARES_Y - 1; j >= 0; j--) {
                                 Square cSquare = squares[i][j];
                                 if (cSquare.type == Square.Type.EMPTY) {
                                     //TODO: CHANGE Values
@@ -483,20 +498,20 @@ public class Board extends GameObject {
 
     private Square createNewSquare(int i, int j, int type) {
         float squareX = sprite.getX()
-                + ((i + 1) * spaceBetweenSquares) + (i * SQUARE_SIZE) + diff;
+                + ((i + 1) * spaceBetweenSquares) + (i * SQUARE_SIZE) + diffX;
         float squareY = sprite.getY() + sprite.getHeight() -
-                ((j + 1) * spaceBetweenSquares) - (j * SQUARE_SIZE) - SQUARE_SIZE - diff;
+                ((j + 1) * spaceBetweenSquares) - (j * SQUARE_SIZE) - SQUARE_SIZE - diffY;
         return new Square(world, squareX, squareY, SQUARE_SIZE, SQUARE_SIZE,
                 AssetLoader.square, FlatColors.WHITE, Shape.RECTANGLE, i, j, type);
     }
 
     public void fillPosArray() {
-        for (int i = 0; i < NUM_OF_SQUARES; i++) {
-            for (int j = 0; j < NUM_OF_SQUARES; j++) {
+        for (int i = 0; i < NUM_OF_SQUARES_X; i++) {
+            for (int j = 0; j < NUM_OF_SQUARES_Y; j++) {
                 float squareX = sprite
-                        .getX() + ((i + 1) * spaceBetweenSquares) + (i * SQUARE_SIZE) + diff;
+                        .getX() + ((i + 1) * spaceBetweenSquares) + (i * SQUARE_SIZE) + diffX;
                 float squareY = sprite.getY() + sprite.getHeight() -
-                        ((j + 1) * spaceBetweenSquares) - (j * SQUARE_SIZE) - SQUARE_SIZE - diff;
+                        ((j + 1) * spaceBetweenSquares) - (j * SQUARE_SIZE) - SQUARE_SIZE - diffY;
                 pos[i][j] = new Vector2(squareX, squareY);
             }
         }
@@ -530,8 +545,8 @@ public class Board extends GameObject {
     }
 
     public void destroyAll() {
-        for (int i = 0; i < NUM_OF_SQUARES; i++) {
-            for (int j = 0; j < NUM_OF_SQUARES; j++) {
+        for (int i = 0; i < NUM_OF_SQUARES_X; i++) {
+            for (int j = 0; j < NUM_OF_SQUARES_Y; j++) {
                 squares[i][j].dissapear();
             }
         }
