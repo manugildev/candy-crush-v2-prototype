@@ -23,12 +23,12 @@ import tweens.Value;
 
 import static configuration.Settings.NUM_OF_SQUARES;
 import static configuration.Settings.NUM_OF_TYPES;
+import static configuration.Settings.SPACE_BETWEEN_SQUARES;
 import static configuration.Settings.SQUARE_SIZE;
 
 public class Board extends GameObject {
 
     public Square[][] squares = new Square[NUM_OF_SQUARES][NUM_OF_SQUARES];
-    Square[][] tempM = new Square[NUM_OF_SQUARES][NUM_OF_SQUARES];
 
     Vector2[][] pos = new Vector2[NUM_OF_SQUARES][NUM_OF_SQUARES];
 
@@ -39,11 +39,15 @@ public class Board extends GameObject {
     private Sols[] solCoords = new Sols[1000];
     private Array<Sols> results = new Array<Sols>();
 
-    float spaceBetweenSquares;
+    float spaceBetweenSquares, diff;
+    Array<Float> delays = new Array<Float>();
 
     public Board(GameWorld world, float x, float y, float width, float height,
                  TextureRegion texture, Color color, Shape shape) {
         super(world, x, y, width, height, texture, color, shape);
+
+        delays.addAll(0.01f, 0.02f, 0.03f, 0.04f, 0.05f, 0.06f, 0.07f, 0.08f, 0.09f);
+        delays.reverse();
         sprite.setAlpha(.5f);
         startGame();
 
@@ -67,17 +71,21 @@ public class Board extends GameObject {
     public void generate() {
         boolean repeat;
         long startTime = System.currentTimeMillis();
+
+        //GENERAL CALCULATIONS
+        spaceBetweenSquares = SPACE_BETWEEN_SQUARES;
+        diff = (sprite.getWidth() - (NUM_OF_SQUARES * SQUARE_SIZE)
+                - (spaceBetweenSquares * (NUM_OF_SQUARES + 1))) / 2;
+
         //GENERATING NEW BOARD
         do {
             repeat = false;
-            spaceBetweenSquares = (sprite.getWidth() - ((NUM_OF_SQUARES) * SQUARE_SIZE)) /
-                    (NUM_OF_SQUARES + 1);
+            //spaceBetweenSquares = (sprite.getWidth() - ((NUM_OF_SQUARES) * SQUARE_SIZE)) / (NUM_OF_SQUARES + 1);
             for (int i = 0; i < NUM_OF_SQUARES; i++) {
                 for (int j = 0; j < NUM_OF_SQUARES; j++) {
                     squares[i][j] = createNewSquare(i, j, MathUtils.random(1, NUM_OF_TYPES - 1));
                 }
             }
-
             if (check().size != 0) repeat = true;
             else if (solutions().size == 0) repeat = true;
 
@@ -275,7 +283,6 @@ public class Board extends GameObject {
     }
 
     public void control() {
-
         world.boardBlocked = true;
         if (check().size != 0) {
             MultipleMatch matches = check();
@@ -349,7 +356,7 @@ public class Board extends GameObject {
     private void timercontrol() {
         world.boardBlocked = true;
         Value timer = new Value();
-        Tween.to(timer, -1, .31f).setCallbackTriggers(TweenCallback.COMPLETE).setCallback(
+        Tween.to(timer, -1, .50f).setCallbackTriggers(TweenCallback.COMPLETE).setCallback(
                 new TweenCallback() {
                     @Override
                     public void onEvent(int type, BaseTween<?> source) {
@@ -429,7 +436,7 @@ public class Board extends GameObject {
                 Square cSquare = squares[i][j];
                 if (cSquare.diffY != 0) {
                     cSquare.effectY(cSquare.getPosition().y,
-                            cSquare.getPosition().y - cSquare.diffY, .3f, 0.1f * (1 / (j + 1)));
+                            cSquare.getPosition().y - cSquare.diffY, .3f, delays.get(j) * 2.5f);
                 }
             }
         }
@@ -437,7 +444,7 @@ public class Board extends GameObject {
 
     public void refreshCR() {
         Value timer = new Value();
-        Tween.to(timer, -1, .31f).setCallbackTriggers(TweenCallback.COMPLETE).setCallback(
+        Tween.to(timer, -1, .35f).setCallbackTriggers(TweenCallback.COMPLETE).setCallback(
                 new TweenCallback() {
                     @Override
                     public void onEvent(int type, BaseTween<?> source) {
@@ -459,7 +466,8 @@ public class Board extends GameObject {
                                     //TODO: CHANGE Values
                                     squares[i][j] = createNewSquare(i, j,
                                             MathUtils.random(1, NUM_OF_TYPES - 1));
-                                    squares[i][j].fallingEffect(pos[i][j], 0.1f * (1 / (j + 1)));
+                                    //Gdx.app.log("Delay", String.valueOf(delays.get(j) * 2));
+                                    squares[i][j].fallingEffect(pos[i][j], delays.get(j) * 2.5f);
                                 }
                             }
                         }
@@ -474,10 +482,10 @@ public class Board extends GameObject {
 
 
     private Square createNewSquare(int i, int j, int type) {
-        float squareX = sprite
-                .getX() + ((i + 1) * spaceBetweenSquares) + (i * SQUARE_SIZE);
+        float squareX = sprite.getX()
+                + ((i + 1) * spaceBetweenSquares) + (i * SQUARE_SIZE) + diff;
         float squareY = sprite.getY() + sprite.getHeight() -
-                ((j + 1) * spaceBetweenSquares) - (j * SQUARE_SIZE) - SQUARE_SIZE;
+                ((j + 1) * spaceBetweenSquares) - (j * SQUARE_SIZE) - SQUARE_SIZE - diff;
         return new Square(world, squareX, squareY, SQUARE_SIZE, SQUARE_SIZE,
                 AssetLoader.square, FlatColors.WHITE, Shape.RECTANGLE, i, j, type);
     }
@@ -486,9 +494,9 @@ public class Board extends GameObject {
         for (int i = 0; i < NUM_OF_SQUARES; i++) {
             for (int j = 0; j < NUM_OF_SQUARES; j++) {
                 float squareX = sprite
-                        .getX() + ((i + 1) * spaceBetweenSquares) + (i * SQUARE_SIZE);
+                        .getX() + ((i + 1) * spaceBetweenSquares) + (i * SQUARE_SIZE) + diff;
                 float squareY = sprite.getY() + sprite.getHeight() -
-                        ((j + 1) * spaceBetweenSquares) - (j * SQUARE_SIZE) - SQUARE_SIZE;
+                        ((j + 1) * spaceBetweenSquares) - (j * SQUARE_SIZE) - SQUARE_SIZE - diff;
                 pos[i][j] = new Vector2(squareX, squareY);
             }
         }
@@ -496,7 +504,7 @@ public class Board extends GameObject {
 
     public void autoSolve() {
         Value timer = new Value();
-        Tween.to(timer, -1, .3f).setCallbackTriggers(TweenCallback.COMPLETE).setCallback(
+        Tween.to(timer, -1, .35f).setCallbackTriggers(TweenCallback.COMPLETE).setCallback(
                 new TweenCallback() {
                     @Override
                     public void onEvent(int type, BaseTween<?> source) {

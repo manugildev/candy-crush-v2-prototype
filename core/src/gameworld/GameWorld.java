@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 import MainGame.MainGame;
 import aurelienribon.tweenengine.TweenManager;
+import configuration.Settings;
 import gameobjects.Board;
 import gameobjects.GameObject;
 import helpers.AssetLoader;
@@ -17,7 +18,7 @@ import helpers.FlatColors;
 import screens.GameScreen;
 import screens.LoadingScreen;
 
-import static configuration.Settings.BOARD_MARGIN;
+import static configuration.Settings.*;
 
 public class GameWorld {
 
@@ -117,10 +118,12 @@ public class GameWorld {
 
     //CREATING STUFF
     private void createBoard() {
-        float boardW = gameWidth - (BOARD_MARGIN * 2);
+        float boardW = (Settings.NUM_OF_SQUARES_X * Settings.SQUARE_SIZE) + (Settings.SPACE_BETWEEN_SQUARES * (NUM_OF_SQUARES_X + 1)) + (BOARD_MARGIN * 2);
+        float boardH = (Settings.NUM_OF_SQUARES_Y * Settings.SQUARE_SIZE) + (Settings.SPACE_BETWEEN_SQUARES * (NUM_OF_SQUARES_Y + 1)) + (BOARD_MARGIN * 2);
         float boardX = gameWidth / 2 - (boardW / 2);
-        float boardY = gameHeight / 2 - (boardW / 2);
-        board = new Board(this, boardX, boardY, boardW, boardW, AssetLoader.square, FlatColors.BLACK,
+        float boardY = gameHeight / 2 - (boardH / 2);
+        board = new Board(this, boardX, boardY, boardW, boardH, AssetLoader.square,
+                FlatColors.BLACK,
                 GameObject.Shape.RECTANGLE);
         board.start();
     }

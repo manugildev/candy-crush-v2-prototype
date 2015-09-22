@@ -52,8 +52,12 @@ public class Square extends GameObject {
                 Align.left);
 
         backSprite = new Sprite(AssetLoader.square);
-        backSprite.setColor(FlatColors.WHITE);
+        backSprite.setColor(FlatColors.DARK_BLACK);
+        backSprite.setAlpha(.5f);
         backSprite.setSize(width, height);
+        backSprite.setPosition(sprite.getX(), sprite.getY());
+        backSprite.setScale(1.1f);
+        backSprite.setOriginCenter();
 
         bonusSprite = new Sprite(AssetLoader.square);
         bonusSprite.setColor(FlatColors.WHITE);
@@ -61,7 +65,7 @@ public class Square extends GameObject {
         bonusSprite.setScale(1);
         bonusSprite.setOriginCenter();
 
-        if (Math.random() < 0.1f) {
+        if (Math.random() < Settings.BONUS_PROB) {
             setBonus(MathUtils.random(1, Bonus.values().length - 1));
         } else {
             setBonus(0);
@@ -78,7 +82,7 @@ public class Square extends GameObject {
         text.update(delta);
         text.setText(column + "" + row /*+ "\nE:" + emptyB*/);
         text.setPosition(getPosition().x + 10, getPosition().y);
-        if (isSelected) backSprite.setPosition(sprite.getX(), sprite.getY());
+        //if (isSelected)
         if (bonus != Bonus.NORMAL) {
             bonusSprite.setPosition(
                     sprite.getX() + (sprite.getWidth() / 2) - (bonusSprite.getWidth() / 2),
@@ -89,7 +93,7 @@ public class Square extends GameObject {
     }
 
     public void render(SpriteBatch batch, ShapeRenderer shapeRenderer) {
-        if (isSelected) backSprite.draw(batch);
+        //if ((column+row)%2==0) backSprite.draw(batch);
         super.render(batch, shapeRenderer);
         if (bonus != Bonus.NORMAL) bonusSprite.draw(batch);
         // if (Configuration.DEBUG)
@@ -108,12 +112,12 @@ public class Square extends GameObject {
     }
 
     public void select() {
-        scale(1, .9f, .1f, .0f);
+        //scale(1, .9f, .1f, .0f);
         isSelected = true;
     }
 
     public void deSelect() {
-        scale(0.9f, 1f, .1f, .0f);
+        //scale(0.9f, 1f, .1f, .0f);
         isSelected = false;
     }
 
