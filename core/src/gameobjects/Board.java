@@ -312,45 +312,61 @@ public class Board extends GameObject {
         }
     }
 
+    public void dissapearOneLine(int x, int y, boolean isHorizontal) {
+        if (isHorizontal) {
+            for (int w = 0; w < NUM_OF_SQUARES_X; w++) {
+                if (squares[w][y].bonus != Square.Bonus.NORMAL) squares[w][y].dissapear();
+                else squares[w][y].dissapearWithBonus(true);
+            }
+        } else {
+            for (int w = 0; w < NUM_OF_SQUARES_Y; w++) {
+                if (squares[x][w].bonus != Square.Bonus.NORMAL) squares[x][w].dissapear();
+                else squares[x][w].dissapearWithBonus(false);
+            }
+        }
+    }
+
+    public void dissapearBomb(int x, int y) {
+        for (int w = x - 1; w <= x + 1; w++) {
+            for (int l = y - 1; l <= y + 1; l++) {
+                if (coordExists(w, l))
+                    if (squares[w][l].bonus != Square.Bonus.NORMAL) squares[w][l].dissapear();
+                    else squares[w][l].dissapearWithBonus(false);
+            }
+        }
+    }
+
+    public void dissapearBitcoin(int x, int y) {
+        Square.Type type = squares[x][y].type;
+        for (int w = 0; w < NUM_OF_SQUARES_X; w++) {
+            for (int l = 0; l < NUM_OF_SQUARES_Y; l++) {
+                if (squares[w][l].type == type)
+                    if (squares[w][l].bonus != Square.Bonus.NORMAL) squares[w][l].dissapear();
+                    else squares[w][l].dissapearWithBonus(false);
+            }
+        }
+    }
+
+
     private void dissapearMatchWithBonus(Match match) {
         for (int j = 0; j < match.size; j++) {
             Coord c = match.get(j);
-            Square.Type type = squares[c.x][c.y].type;
             switch (squares[c.x][c.y].bonus) {
                 case BITCOIN:
-                    for (int w = NUM_OF_SQUARES_X - 1; w >= 0; w--) {
-                        for (int l = NUM_OF_SQUARES_Y - 1; l >= 0; l--) {
-                            if (squares[w][l].type == type)
-                                squares[w][l].dissapear();
-                        }
-                    }
+                    dissapearBitcoin(c.x, c.y);
                     break;
                 case RAY:
-                    if (match.isHorizontal()) {
-                        for (int w = 0; w < NUM_OF_SQUARES_X; w++) {
-                            squares[w][c.y].dissapear();
-                        }
-                    } else {
-                        for (int w = 0; w < NUM_OF_SQUARES_Y; w++) {
-                            squares[c.x][w].dissapear();
-                        }
-                    }
-                    squares[c.x][c.y].dissapear();
+                    dissapearOneLine(c.x, c.y, match.isHorizontal());
                     break;
                 case BOMB:
-                    for (int w = c.x - 1; w <= c.x + 1; w++) {
-                        for (int l = c.y - 1; l <= c.y + 1; l++) {
-                            if (coordExists(w, l))
-                                squares[w][l].dissapear();
-                        }
-                    }
+                    dissapearBomb(c.x, c.y);
                     break;
-
                 default:
                     squares[c.x][c.y].dissapear();
                     break;
             }
         }
+
     }
 
     private boolean coordExists(int w, int l) {
@@ -482,7 +498,7 @@ public class Board extends GameObject {
                                     squares[i][j] = createNewSquare(i, j,
                                             MathUtils.random(1, NUM_OF_TYPES - 1));
                                     //Gdx.app.log("Delay", String.valueOf(delays.get(j) * 2));
-                                    squares[i][j].fallingEffect(pos[i][j], delays.get(j) * 2.5f);
+                                    squares[i][j].fallingEffect(pos[i][j], delays.get(j) * 2f);
                                 }
                             }
                         }

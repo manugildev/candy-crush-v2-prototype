@@ -224,6 +224,24 @@ public class Square extends GameObject {
         }
     }
 
+    public void dissapearWithBonus(boolean isHorizontal) {
+
+        switch (bonus) {
+            case BITCOIN:
+                world.board.dissapearBitcoin(column, row);
+                break;
+            case RAY:
+                world.board.dissapearOneLine(column, row, isHorizontal);
+                break;
+            case BOMB:
+                world.board.dissapearBomb(column, row);
+                break;
+            default:
+                world.board.squares[column][row].dissapear();
+                break;
+        }
+    }
+
     public void setType(int i) {
         type = numToType(i);
     }
