@@ -6,6 +6,9 @@
 *.hprof
 hs_err_pid*
 
+## IOS
+ios/robovm-build/
+
 ## GWT
 gen/
 war/
