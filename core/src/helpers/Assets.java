@@ -17,7 +17,7 @@ public class Assets {
 
         //TEXTURE FILTER
         TextureLoader.TextureParameter param = new TextureLoader.TextureParameter();
-        param.minFilter = Texture.TextureFilter.MipMapLinearNearest;
+        param.minFilter = Texture.TextureFilter.Linear;
         param.magFilter = Texture.TextureFilter.Linear;
         param.genMipMaps = true;
 
@@ -25,6 +25,7 @@ public class Assets {
         manager.load("dot.png", Texture.class, param);
         manager.load("square.png", Texture.class, param);
         manager.load("background.png", Texture.class, param);
+        manager.load("jewels.png", Texture.class, param);
 
         //Font
         manager.load("misc/font.fnt", BitmapFont.class);

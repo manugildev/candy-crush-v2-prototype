@@ -9,7 +9,10 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
+import java.util.ArrayList;
+
 import configuration.Configuration;
+import configuration.Settings;
 
 public class AssetLoader {
 
@@ -18,7 +21,8 @@ public class AssetLoader {
     public static TextureRegion square, dot;
 
     //ADVANCE
-    public static Texture background;
+    public static Texture background, jewelsTexture;
+    public static ArrayList<TextureRegion> jewels = new ArrayList<TextureRegion>();
 
     //SOUNDS
     public static Sound click, flap, coinS, success, end;
@@ -38,28 +42,33 @@ public class AssetLoader {
 
         background = getAssetTexture("background.png");
 
+        jewelsTexture = getAssetTexture("jewels.png");
+        for (int i = 0; i < Settings.NUM_OF_TYPES; i++) {
+            jewels.add(new TextureRegion(jewelsTexture, 400 * i, 0, 400, 400));
+        }
+
         //FONTS
         //Loading Font
         Texture tfont = new Texture(Gdx.files.internal("misc/font.png"), true);
         tfont.setFilter(TextureFilter.MipMapLinearLinear, TextureFilter.Linear);
 
         font = new BitmapFont(Gdx.files.internal("misc/font.fnt"), new TextureRegion(tfont),
-                true);
+                              true);
         font.getData().setScale(1.5f, -1.5f);
         font.setColor(FlatColors.WHITE);
 
         font08 = new BitmapFont(Gdx.files.internal("misc/font.fnt"), new TextureRegion(tfont),
-                true);
+                                true);
         font08.getData().setScale(0.6f, -0.6f);
         font08.setColor(FlatColors.WHITE);
 
         font12 = new BitmapFont(Gdx.files.internal("misc/font.fnt"), new TextureRegion(tfont),
-                true);
+                                true);
         font12.getData().setScale(1.2f, -1.2f);
         font12.setColor(FlatColors.WHITE);
 
         font23 = new BitmapFont(Gdx.files.internal("misc/font.fnt"), new TextureRegion(tfont),
-                true);
+                                true);
         font23.getData().setScale(2.3f, -2.3f);
         font23.setColor(FlatColors.WHITE);
 

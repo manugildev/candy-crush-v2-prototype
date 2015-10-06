@@ -48,8 +48,8 @@ public class Square extends GameObject {
         FlatColors.organizeColors();
         setType(typeN);
         text = new Text(world, x + 10, y, width, height, texture, color, column + "" + row,
-                AssetLoader.font08, FlatColors.WHITE, 10,
-                Align.left);
+                        AssetLoader.font08, FlatColors.WHITE, 10,
+                        Align.left);
 
         backSprite = new Sprite(AssetLoader.square);
         backSprite.setColor(FlatColors.DARK_BLACK);
@@ -192,16 +192,16 @@ public class Square extends GameObject {
 
         Value timer = new Value();
         Tween.to(timer, -1, .21f).target(1).setCallbackTriggers(TweenCallback.COMPLETE)
-                .setCallback(new TweenCallback() {
-                    @Override
-                    public void onEvent(int type, BaseTween<?> source) {
-                        if (world.board.check().size == 0) {
-                            swapXandY(squares, x2, y2, x1, y1);
-                        } else {
-                            world.board.control();
-                        }
-                    }
-                }).start(getManager());
+             .setCallback(new TweenCallback() {
+                 @Override
+                 public void onEvent(int type, BaseTween<?> source) {
+                     if (world.board.check().size == 0) {
+                         swapXandY(squares, x2, y2, x1, y1);
+                     } else {
+                         world.board.control();
+                     }
+                 }
+             }).start(getManager());
 
 
     }
@@ -210,10 +210,10 @@ public class Square extends GameObject {
     public void effectXY(Vector2 from, Vector2 to, float duration, float delay) {
         position.y = from.y;
         Tween.to(position, VectorAccessor.VERTICAL, duration).target(to.y).delay(delay)
-                .ease(TweenEquations.easeInOutSine).start(getManager());
+             .ease(TweenEquations.easeInOutSine).start(getManager());
         position.x = from.x;
         Tween.to(position, VectorAccessor.HORIZONTAL, duration).target(to.x).delay(delay)
-                .ease(TweenEquations.easeInOutSine).start(getManager());
+             .ease(TweenEquations.easeInOutSine).start(getManager());
     }
 
     public void dissapear() {
@@ -260,27 +260,29 @@ public class Square extends GameObject {
     public Type numToType(int num) {
         FlatColors.organizeColors();
         typeN = num;
+        if (num <= Settings.NUM_OF_TYPES && num > 0)
+            sprite.setRegion(AssetLoader.jewels.get(num - 1));
         switch (num) {
             case 1:
-                sprite.setColor(FlatColors.colors.get(num - 1));
+                //sprite.setColor(FlatColors.colors.get(num - 1));
                 return Type.WHITE;
             case 2:
-                sprite.setColor(FlatColors.colors.get(num - 1));
+                //sprite.setColor(FlatColors.colors.get(num - 1));
                 return Type.RED;
             case 3:
-                sprite.setColor(FlatColors.colors.get(num - 1));
+                //sprite.setColor(FlatColors.colors.get(num - 1));
                 return Type.PURPLE;
             case 4:
-                sprite.setColor(FlatColors.colors.get(num - 1));
+                //sprite.setColor(FlatColors.colors.get(num - 1));
                 return Type.ORANGE;
             case 5:
-                sprite.setColor(FlatColors.colors.get(num - 1));
+                // sprite.setColor(FlatColors.colors.get(num - 1));
                 return Type.GREEN;
             case 6:
-                sprite.setColor(FlatColors.colors.get(num - 1));
+                //sprite.setColor(FlatColors.colors.get(num - 1));
                 return Type.YELLOW;
             case 7:
-                sprite.setColor(FlatColors.colors.get(num - 1));
+                //sprite.setColor(FlatColors.colors.get(num - 1));
                 return Type.BLUE;
             default:
                 return Type.EMPTY;
