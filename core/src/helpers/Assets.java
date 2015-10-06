@@ -21,11 +21,6 @@ public class Assets {
         param.magFilter = Texture.TextureFilter.Linear;
         param.genMipMaps = true;
 
-        // CRH Oct 2, 2015
-        //
-        // Had to set param null because mipmap textures are not
-        // supported by robovm on ios.
-        //
         param = null;
 
         //Textures
