@@ -21,7 +21,7 @@ public class AssetLoader {
     public static TextureRegion square, dot;
 
     //ADVANCE
-    public static Texture background, jewelsTexture;
+    public static Texture background, jewelsTexture, dissEffect;
     public static ArrayList<TextureRegion> jewels = new ArrayList<TextureRegion>();
 
     //SOUNDS
@@ -47,6 +47,7 @@ public class AssetLoader {
             jewels.add(new TextureRegion(jewelsTexture, 400 * i, 0, 400, 400));
         }
 
+        dissEffect = getAssetTexture("dissEffect.png");
         //FONTS
         //Loading Font
         Texture tfont = new Texture(Gdx.files.internal("misc/font.png"), true);

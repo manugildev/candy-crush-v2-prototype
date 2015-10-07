@@ -1,6 +1,8 @@
 package gameobjects;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -17,6 +19,7 @@ import configuration.Settings;
 import gameworld.GameWorld;
 import helpers.AssetLoader;
 import helpers.FlatColors;
+import tweens.SpriteAccessor;
 import tweens.Value;
 import tweens.VectorAccessor;
 import ui.Text;
@@ -28,7 +31,10 @@ public class Square extends GameObject {
     private Text text;
     public int typeN, emptyB = 0;
     public float diffY = 0;
-    private Sprite backSprite, bonusSprite;
+    private Sprite backSprite, bonusSprite, dissEffect;
+
+
+    private ParticleEffect particleEffect;
     public boolean isSelected = false;
 
     public Bonus bonus;
@@ -65,6 +71,22 @@ public class Square extends GameObject {
         bonusSprite.setScale(1);
         bonusSprite.setOriginCenter();
 
+        dissEffect = new Sprite(AssetLoader.dissEffect);
+        dissEffect.setColor(FlatColors.WHITE);
+        dissEffect.setSize(width, height);
+        dissEffect.setScale(0);
+        dissEffect.setAlpha(1);
+        dissEffect.setOriginCenter();
+
+        //PARTICLES
+        particleEffect = new ParticleEffect();
+        particleEffect.load(Gdx.files.internal("misc/hit.p"), Gdx.files.internal(""));
+        particleEffect.setPosition(
+                sprite.getX() + (sprite.getWidth() / 2),
+                sprite.getY() + (sprite.getHeight() / 2));
+        particleEffect.start();
+        particleEffect.start();
+
         if (Math.random() < Settings.BONUS_PROB) {
             setBonus(MathUtils.random(1, Bonus.values().length - 1));
         } else {
@@ -79,6 +101,7 @@ public class Square extends GameObject {
 
     public void update(float delta) {
         super.update(delta);
+        particleEffect.update(delta);
         text.update(delta);
         text.setText(column + "" + row /*+ "\nE:" + emptyB*/);
         text.setPosition(getPosition().x + 10, getPosition().y);
@@ -89,13 +112,17 @@ public class Square extends GameObject {
                     sprite.getY() + (sprite.getHeight() / 2) - (bonusSprite.getHeight() / 2));
             bonusSprite.setScale(sprite.getScaleX(), sprite.getScaleY());
             bonusSprite.setAlpha(sprite.getColor().a);
+
+
         }
     }
 
     public void render(SpriteBatch batch, ShapeRenderer shapeRenderer) {
         //if ((column+row)%2==0) backSprite.draw(batch);
+        if (type == Type.EMPTY) particleEffect.draw(batch);
         super.render(batch, shapeRenderer);
         if (bonus != Bonus.NORMAL) bonusSprite.draw(batch);
+        if (type == Type.EMPTY) dissEffect.draw(batch);
         // if (Configuration.DEBUG)
         // if (sprite.getScaleX() == 1) text.render(batch, shapeRenderer, GameRenderer.fontShader);
     }
@@ -221,6 +248,17 @@ public class Square extends GameObject {
             scale(1, 0, .3f, .1f);
             fadeOut(.3f, .1f);
             setType(-1);
+            dissEffect.setPosition(
+                    sprite.getX() + (sprite.getWidth() / 2) - (dissEffect.getWidth() / 2),
+                    sprite.getY() + (sprite.getHeight() / 2) - (dissEffect.getHeight() / 2));
+            particleEffect.setPosition(
+                    sprite.getX() + (sprite.getWidth() / 2),
+                    sprite.getY() + (sprite.getHeight() / 2));
+
+            particleEffect.reset();
+            Tween.to(dissEffect, SpriteAccessor.SCALE, .3f).target(1).start(getManager());
+            Tween.to(dissEffect, SpriteAccessor.ALPHA, .3f).delay(.1f).target(0)
+                 .start(getManager());
         }
     }
 

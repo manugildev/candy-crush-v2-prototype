@@ -28,7 +28,7 @@ public class Assets {
         manager.load("square.png", Texture.class, param);
         manager.load("background.png", Texture.class, param);
         manager.load("jewels.png", Texture.class, param);
-
+        manager.load("dissEffect.png", Texture.class, param);
         //Font
         manager.load("misc/font.fnt", BitmapFont.class);
 
