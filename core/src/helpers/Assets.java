@@ -21,13 +21,14 @@ public class Assets {
         param.magFilter = Texture.TextureFilter.Linear;
         param.genMipMaps = true;
 
-        param = null;
+        //param = null;
 
         //Textures
         manager.load("dot.png", Texture.class, param);
         manager.load("square.png", Texture.class, param);
         manager.load("background.png", Texture.class, param);
         manager.load("jewels.png", Texture.class, param);
+        manager.load("jewels_selected.png", Texture.class, param);
         manager.load("dissEffect.png", Texture.class, param);
         //Font
         manager.load("misc/font.fnt", BitmapFont.class);

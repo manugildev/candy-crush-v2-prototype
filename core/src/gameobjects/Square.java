@@ -141,11 +141,13 @@ public class Square extends GameObject {
     public void select() {
         //scale(1, .9f, .1f, .0f);
         isSelected = true;
+        sprite.setRegion(AssetLoader.jewelsSelected.get(typeN - 1));
     }
 
     public void deSelect() {
         //scale(0.9f, 1f, .1f, .0f);
         isSelected = false;
+        sprite.setRegion(AssetLoader.jewels.get(typeN - 1));
     }
 
     public void slideRight() {
