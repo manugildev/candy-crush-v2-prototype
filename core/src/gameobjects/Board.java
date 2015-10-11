@@ -1,17 +1,21 @@
 package gameobjects;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
+import java.util.ArrayList;
+
 import aurelienribon.tweenengine.BaseTween;
 import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenCallback;
 import configuration.Configuration;
+import configuration.Settings;
 import gamecontrol.Coord;
 import gamecontrol.Match;
 import gamecontrol.MultipleMatch;
@@ -21,7 +25,11 @@ import helpers.AssetLoader;
 import helpers.FlatColors;
 import tweens.Value;
 
-import static configuration.Settings.*;
+import static configuration.Settings.NUM_OF_SQUARES_X;
+import static configuration.Settings.NUM_OF_SQUARES_Y;
+import static configuration.Settings.NUM_OF_TYPES;
+import static configuration.Settings.SPACE_BETWEEN_SQUARES;
+import static configuration.Settings.SQUARE_SIZE;
 
 public class Board extends GameObject {
 
@@ -38,12 +46,13 @@ public class Board extends GameObject {
     float spaceBetweenSquares, diffX, diffY;
     int higherNUM;
     Array<Float> delays = new Array<Float>();
+    private ArrayList<Sprite> backs = new ArrayList<Sprite>();
 
     public Board(GameWorld world, float x, float y, float width, float height,
-                 TextureRegion texture, Color color, Shape shape) {
+                 Texture texture, Color color, Shape shape) {
         super(world, x, y, width, height, texture, color, shape);
         delays.addAll(0.01f, 0.02f, 0.03f, 0.04f, 0.05f, 0.06f, 0.07f, 0.08f, 0.09f, 0.1f, 0.11f,
-                0.12f);
+                      0.12f);
         delays.reverse();
         sprite.setAlpha(.85f);
 
@@ -98,10 +107,25 @@ public class Board extends GameObject {
             else if (solutions().size == 0) repeat = true;
 
         } while (repeat);
-
+        createBacks();
         long stopTime = System.currentTimeMillis();
         long elapsedTime = stopTime - startTime;
         System.out.println("Time to Generate Board --> " + elapsedTime / 1000.0);
+    }
+
+    private void createBacks() {
+        for (int i = 0; i < NUM_OF_SQUARES_X; i++) {
+            for (int j = 0; j < NUM_OF_SQUARES_Y; j++) {
+                Sprite backSprite = new Sprite(AssetLoader.back);
+                backSprite.setAlpha(.5f);
+                backSprite.setSize(Settings.SQUARE_SIZE, Settings.SQUARE_SIZE);
+                backSprite
+                        .setPosition(squares[i][j].getPosition().x, squares[i][j].getPosition().y);
+                backSprite.setScale(1.0f);
+                backSprite.setOriginCenter();
+                backs.add(backSprite);
+            }
+        }
     }
 
 
@@ -118,6 +142,9 @@ public class Board extends GameObject {
     @Override
     public void render(SpriteBatch batch, ShapeRenderer shapeRenderer) {
         super.render(batch, shapeRenderer);
+        for (int i = 0; i < backs.size(); i++) {
+            backs.get(i).draw(batch);
+        }
         for (int i = NUM_OF_SQUARES_X - 1; i >= 0; i--) {
             for (int j = NUM_OF_SQUARES_Y - 1; j >= 0; j--) {
                 squares[i][j].render(batch, shapeRenderer);
@@ -467,7 +494,8 @@ public class Board extends GameObject {
                 Square cSquare = squares[i][j];
                 if (cSquare.diffY != 0) {
                     cSquare.effectY(cSquare.getPosition().y,
-                            cSquare.getPosition().y - cSquare.diffY, .3f, delays.get(j) * 2.5f);
+                                    cSquare.getPosition().y - cSquare.diffY, .3f,
+                                    delays.get(j) * 2.5f);
                 }
             }
         }
@@ -496,7 +524,8 @@ public class Board extends GameObject {
                                 if (cSquare.type == Square.Type.EMPTY) {
                                     //TODO: CHANGE Values
                                     squares[i][j] = createNewSquare(i, j,
-                                            MathUtils.random(1, NUM_OF_TYPES - 1));
+                                                                    MathUtils.random(1,
+                                                                                     NUM_OF_TYPES - 1));
                                     //Gdx.app.log("Delay", String.valueOf(delays.get(j) * 2));
                                     squares[i][j].fallingEffect(pos[i][j], delays.get(j) * 2f);
                                 }
@@ -518,7 +547,7 @@ public class Board extends GameObject {
         float squareY = sprite.getY() + sprite.getHeight() -
                 ((j + 1) * spaceBetweenSquares) - (j * SQUARE_SIZE) - SQUARE_SIZE - diffY;
         return new Square(world, squareX, squareY, SQUARE_SIZE, SQUARE_SIZE,
-                AssetLoader.square, FlatColors.WHITE, Shape.RECTANGLE, i, j, type);
+                          AssetLoader.square, FlatColors.WHITE, Shape.RECTANGLE, i, j, type);
     }
 
     public void fillPosArray() {

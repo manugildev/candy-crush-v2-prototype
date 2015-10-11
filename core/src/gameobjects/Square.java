@@ -31,8 +31,7 @@ public class Square extends GameObject {
     private Text text;
     public int typeN, emptyB = 0;
     public float diffY = 0;
-    private Sprite backSprite, bonusSprite, dissEffect;
-
+    private Sprite bonusSprite, dissEffect;
 
     private ParticleEffect particleEffect;
     public boolean isSelected = false;
@@ -57,13 +56,6 @@ public class Square extends GameObject {
                         AssetLoader.font08, FlatColors.WHITE, 10,
                         Align.left);
 
-        backSprite = new Sprite(AssetLoader.square);
-        backSprite.setColor(FlatColors.DARK_BLACK);
-        backSprite.setAlpha(.5f);
-        backSprite.setSize(width, height);
-        backSprite.setPosition(sprite.getX(), sprite.getY());
-        backSprite.setScale(1.1f);
-        backSprite.setOriginCenter();
 
         bonusSprite = new Sprite(AssetLoader.square);
         bonusSprite.setColor(FlatColors.WHITE);

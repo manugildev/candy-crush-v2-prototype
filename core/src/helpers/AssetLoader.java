@@ -21,7 +21,7 @@ public class AssetLoader {
     public static TextureRegion square, dot;
 
     //ADVANCE
-    public static Texture background, jewelsTexture, dissEffect;
+    public static Texture background, jewelsTexture, dissEffect, board, back;
     public static ArrayList<TextureRegion> jewels = new ArrayList<TextureRegion>();
     public static ArrayList<TextureRegion> jewelsSelected = new ArrayList<TextureRegion>();
 
@@ -42,18 +42,19 @@ public class AssetLoader {
         dot = new TextureRegion(dotT);
 
         background = getAssetTexture("background.png");
-
         jewelsTexture = getAssetTexture("jewels.png");
         for (int i = 0; i < Settings.NUM_OF_TYPES; i++) {
             jewels.add(new TextureRegion(jewelsTexture, 400 * i, 0, 400, 400));
         }
-
         jewelsTexture = getAssetTexture("jewels_selected.png");
         for (int i = 0; i < Settings.NUM_OF_TYPES; i++) {
             jewelsSelected.add(new TextureRegion(jewelsTexture, 400 * i, 0, 400, 400));
         }
-
         dissEffect = getAssetTexture("dissEffect.png");
+        back = getAssetTexture("back.png");
+        board = getAssetTexture("board.png");
+
+
         //FONTS
         //Loading Font
         Texture tfont = new Texture(Gdx.files.internal("misc/font.png"), true);

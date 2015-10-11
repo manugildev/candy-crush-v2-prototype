@@ -122,8 +122,8 @@ public class GameWorld {
         float boardH = (Settings.NUM_OF_SQUARES_Y * Settings.SQUARE_SIZE) + (Settings.SPACE_BETWEEN_SQUARES * (NUM_OF_SQUARES_Y + 1)) + (BOARD_MARGIN * 2);
         float boardX = gameWidth / 2 - (boardW / 2);
         float boardY = gameHeight / 2 - (boardH / 2);
-        board = new Board(this, boardX, boardY, boardW, boardH, AssetLoader.square,
-                FlatColors.DARK_BLACK,
+        board = new Board(this, boardX, boardY, boardW, boardH, AssetLoader.board,
+                FlatColors.WHITE,
                 GameObject.Shape.RECTANGLE);
         board.start();
     }

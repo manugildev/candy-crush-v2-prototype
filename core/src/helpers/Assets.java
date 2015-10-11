@@ -24,6 +24,8 @@ public class Assets {
         //param = null;
 
         //Textures
+        manager.load("back.png", Texture.class, param);
+        manager.load("board.png", Texture.class, param);
         manager.load("dot.png", Texture.class, param);
         manager.load("square.png", Texture.class, param);
         manager.load("background.png", Texture.class, param);
