@@ -341,8 +341,14 @@ public class Board extends GameObject {
             }
             timerToControl();
         } else {
-            world.boardBlocked = false;
-            if (Configuration.AUTOSOLVE) autoSolve();
+            if (solutions().size == 0) {
+                destroyAll();
+            } else {
+                world.boardBlocked = false;
+                if (Configuration.AUTOSOLVE) autoSolve();
+            }
+
+
         }
     }
 
