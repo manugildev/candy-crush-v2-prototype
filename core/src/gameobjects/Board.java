@@ -2,6 +2,7 @@ package gameobjects;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -33,24 +34,27 @@ import static configuration.Settings.SQUARE_SIZE;
 
 public class Board extends GameObject {
 
+    //LOGIC
     public Square[][] squares = new Square[NUM_OF_SQUARES_X][NUM_OF_SQUARES_Y];
-
     Vector2[][] pos = new Vector2[NUM_OF_SQUARES_X][NUM_OF_SQUARES_Y];
-
     private MultipleMatch matches = new MultipleMatch();
     private Match[][] columns, rows;
     private Coord[] matchCoords = new Coord[1000];
     private Sols[] solCoords = new Sols[1000];
     private Array<Sols> results = new Array<Sols>();
-
     float spaceBetweenSquares, diffX, diffY;
     int higherNUM;
     Array<Float> delays = new Array<Float>();
     private ArrayList<Sprite> backs = new ArrayList<Sprite>();
 
+    //GFX
+    NinePatch ninepatch;
+
     public Board(GameWorld world, float x, float y, float width, float height,
                  Texture texture, Color color, Shape shape) {
         super(world, x, y, width, height, texture, color, shape);
+
+        ninepatch = new NinePatch(texture, 50, 50, 50, 50);
         delays.addAll(0.01f, 0.02f, 0.03f, 0.04f, 0.05f, 0.06f, 0.07f, 0.08f, 0.09f, 0.1f, 0.11f,
                       0.12f);
         delays.reverse();
@@ -62,6 +66,7 @@ public class Board extends GameObject {
         columns = new Match[higherNUM][higherNUM];
         rows = new Match[higherNUM][higherNUM];
         startGame();
+        start();
 
     }
 
@@ -132,6 +137,7 @@ public class Board extends GameObject {
     @Override
     public void update(float delta) {
         super.update(delta);
+
         for (int i = 0; i < NUM_OF_SQUARES_X; i++) {
             for (int j = 0; j < NUM_OF_SQUARES_Y; j++) {
                 squares[i][j].update(delta);
@@ -141,7 +147,8 @@ public class Board extends GameObject {
 
     @Override
     public void render(SpriteBatch batch, ShapeRenderer shapeRenderer) {
-        super.render(batch, shapeRenderer);
+        //super.render(batch, shapeRenderer);
+        ninepatch.draw(batch, sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight());
         for (int i = 0; i < backs.size(); i++) {
             backs.get(i).draw(batch);
         }

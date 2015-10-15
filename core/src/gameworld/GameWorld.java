@@ -125,6 +125,5 @@ public class GameWorld {
         board = new Board(this, boardX, boardY, boardW, boardH, AssetLoader.board,
                 FlatColors.WHITE,
                 GameObject.Shape.RECTANGLE);
-        board.start();
     }
 }
