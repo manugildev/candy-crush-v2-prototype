@@ -1,7 +1,6 @@
 package gameworld;
 
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Array;
@@ -13,12 +12,15 @@ import aurelienribon.tweenengine.TweenManager;
 import configuration.Settings;
 import gameobjects.Board;
 import gameobjects.GameObject;
+import helpers.Animation;
 import helpers.AssetLoader;
 import helpers.FlatColors;
 import screens.GameScreen;
 import screens.LoadingScreen;
 
-import static configuration.Settings.*;
+import static configuration.Settings.BOARD_MARGIN;
+import static configuration.Settings.NUM_OF_SQUARES_X;
+import static configuration.Settings.NUM_OF_SQUARES_Y;
 
 public class GameWorld {
 
@@ -33,29 +35,35 @@ public class GameWorld {
     public Board board;
     public boolean boardBlocked = false;
 
+    private Animation anim;
+
     public GameWorld(MainGame game, float gameWidth, float gameHeight) {
         this.game = game;
         this.gameWidth = gameWidth;
         this.gameHeight = gameHeight;
         gameState = GameState.TUTORIAL;
+        anim = new Animation(AssetLoader.bomb, 8, .5f, 1f);
+        anim.setSprite(gameWidth / 2, gameWidth / 2, 250, 250);
 
     }
 
     public void start() {
         //GAMEOBJECTS
         manager = new TweenManager();
-        top = new GameObject(this, 0, 0, gameWidth, gameHeight, AssetLoader.square, Color.BLACK,
-                GameObject.Shape.RECTANGLE);
-        top.fadeOut(.8f, .0f);
+        top = new GameObject(this, 0, 0, gameWidth, gameHeight, AssetLoader.square, FlatColors.WHITE,
+                             GameObject.Shape.RECTANGLE);
         background = new GameObject(this, 0, 0, gameWidth, gameHeight,
-                AssetLoader.background, FlatColors.WHITE, GameObject.Shape.RECTANGLE);
+                                    AssetLoader.background, FlatColors.WHITE,
+                                    GameObject.Shape.RECTANGLE);
 
         //GAMEOBJECTS
         createBoard();
+        top.fadeOut(.5f, .0f);
 
     }
 
     public void update(float delta) {
+        anim.update(delta);
         manager.update(delta);
         board.update(delta);
         top.update(delta);
@@ -65,6 +73,7 @@ public class GameWorld {
         background.render(batch, shapeRenderer);
         board.render(batch, shapeRenderer);
         top.render(batch, shapeRenderer);
+        //anim.render(batch);
     }
 
     public void addScore(int i) {
@@ -123,7 +132,7 @@ public class GameWorld {
         float boardX = gameWidth / 2 - (boardW / 2);
         float boardY = gameHeight / 2 - (boardH / 2);
         board = new Board(this, boardX, boardY, boardW, boardH, AssetLoader.board,
-                FlatColors.WHITE,
-                GameObject.Shape.RECTANGLE);
+                          FlatColors.WHITE,
+                          GameObject.Shape.RECTANGLE);
     }
 }

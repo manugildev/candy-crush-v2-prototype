@@ -21,7 +21,7 @@ public class AssetLoader {
     public static TextureRegion square, dot;
 
     //ADVANCE
-    public static Texture background, jewelsTexture, dissEffect, board, back;
+    public static Texture background, jewelsTexture, dissEffect, board, back, bomb;
     public static ArrayList<TextureRegion> jewels = new ArrayList<TextureRegion>();
     public static ArrayList<TextureRegion> jewelsSelected = new ArrayList<TextureRegion>();
 
@@ -52,7 +52,8 @@ public class AssetLoader {
         }
         dissEffect = getAssetTexture("dissEffect.png");
         back = getAssetTexture("back.png");
-        board = getAssetTexture("board.png");
+        board = getAssetTexture("board2.png");
+        bomb = getAssetTexture("explosion.png");
 
 
         //FONTS

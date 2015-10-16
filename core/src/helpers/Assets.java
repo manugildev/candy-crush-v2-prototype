@@ -25,13 +25,15 @@ public class Assets {
 
         //Textures
         manager.load("back.png", Texture.class, param);
-        manager.load("board.png", Texture.class, param);
+        manager.load("board2.png", Texture.class, param);
         manager.load("dot.png", Texture.class, param);
         manager.load("square.png", Texture.class, param);
         manager.load("background.png", Texture.class, param);
         manager.load("jewels.png", Texture.class, param);
         manager.load("jewels_selected.png", Texture.class, param);
         manager.load("dissEffect.png", Texture.class, param);
+        manager.load("explosion.png", Texture.class, param);
+
         //Font
         manager.load("misc/font.fnt", BitmapFont.class);
 

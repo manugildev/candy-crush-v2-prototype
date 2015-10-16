@@ -111,28 +111,30 @@ public class InputHandler implements InputProcessor {
         activeTouch--;
 
         touchUp = new Vector2(screenX, screenY);
+
         angle = angleBetweenTwoPoints(touchDown, touchUp);
 
-        if (activeTouch == 0 && !world.boardBlocked) {
-            if (touchedSquare != null && touchedSquare.type != Square.Type.EMPTY) {
-                if (angle > (360 - 45) || (angle < 45 && angle >= 0)) {
-                    touchedSquare.slideRight();
-                } else if (angle >= 45 && angle < 135) {
-                    touchedSquare.slideUp();
-                } else if (angle <= (360 - 135) && angle >= 135) {
-                    touchedSquare.slideLeft();
-                } else if (angle >= (360 - 135) && angle < (360 - 45)) {
-                    touchedSquare.slideDown();
+        if (angle != -1)
+            if (activeTouch == 0 && !world.boardBlocked) {
+                if (touchedSquare != null && touchedSquare.type != Square.Type.EMPTY) {
+                    if (angle > (360 - 45) || (angle < 45 && angle >= 0)) {
+                        touchedSquare.slideRight();
+                    } else if (angle >= 45 && angle < 135) {
+                        touchedSquare.slideUp();
+                    } else if (angle <= (360 - 135) && angle >= 135) {
+                        touchedSquare.slideLeft();
+                    } else if (angle >= (360 - 135) && angle < (360 - 45)) {
+                        touchedSquare.slideDown();
+                    }
+                    touchedSquare.deSelect();
                 }
-                touchedSquare.deSelect();
-            }
 
-            for (int i = 0; i < NUM_OF_SQUARES_X; i++) {
-                for (int j = 0; j < NUM_OF_SQUARES_Y; j++) {
-                    squares[i][j].isTouchUp(screenX, screenY);
+                for (int i = 0; i < NUM_OF_SQUARES_X; i++) {
+                    for (int j = 0; j < NUM_OF_SQUARES_Y; j++) {
+                        squares[i][j].isTouchUp(screenX, screenY);
+                    }
                 }
             }
-        }
         return false;
     }
 
@@ -163,15 +165,17 @@ public class InputHandler implements InputProcessor {
     }
 
     public static int angleBetweenTwoPoints(Vector2 one, Vector2 two) {
-        float deltaY = one.y - two.y;
-        float deltaX = two.x - one.x;
-        double angle = Math.toDegrees(Math.atan2(deltaY, deltaX));
-        if (angle < 0) {
-            angle = 360 + angle;
-        }
-        if (new Vector2(deltaX, deltaY).len() < 20) {
-            return -1;
-        }
-        return (int) angle;
+        if (one != null && two != null) {
+            float deltaY = one.y - two.y;
+            float deltaX = two.x - one.x;
+            double angle = Math.toDegrees(Math.atan2(deltaY, deltaX));
+            if (angle < 0) {
+                angle = 360 + angle;
+            }
+            if (new Vector2(deltaX, deltaY).len() < 20) {
+                return -1;
+            }
+            return (int) angle;
+        } else return -1;
     }
 }

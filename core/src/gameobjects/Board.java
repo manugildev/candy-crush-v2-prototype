@@ -24,6 +24,7 @@ import gamecontrol.Sols;
 import gameworld.GameWorld;
 import helpers.AssetLoader;
 import helpers.FlatColors;
+import tweens.SpriteAccessor;
 import tweens.Value;
 
 import static configuration.Settings.NUM_OF_SQUARES_X;
@@ -54,9 +55,9 @@ public class Board extends GameObject {
                  Texture texture, Color color, Shape shape) {
         super(world, x, y, width, height, texture, color, shape);
 
-        ninepatch = new NinePatch(texture, 50, 50, 50, 50);
+        ninepatch = new NinePatch(texture, 100, 100, 100, 100);
         delays.addAll(0.01f, 0.02f, 0.03f, 0.04f, 0.05f, 0.06f, 0.07f, 0.08f, 0.09f, 0.1f, 0.11f,
-                      0.12f);
+                      0.12f, 0.13f, 0.14f, 0.15f, 0.17f);
         delays.reverse();
         sprite.setAlpha(.85f);
 
@@ -84,6 +85,7 @@ public class Board extends GameObject {
             matchCoords[x] = new Coord();
             solCoords[x] = new Sols();
         }
+
         generate();
         fillPosArray();
     }
@@ -110,12 +112,14 @@ public class Board extends GameObject {
             }
             if (check().size != 0) repeat = true;
             else if (solutions().size == 0) repeat = true;
-
+            if (Settings.RANDOM_BOARD) {repeat = false; }
         } while (repeat);
+
         createBacks();
         long stopTime = System.currentTimeMillis();
         long elapsedTime = stopTime - startTime;
         System.out.println("Time to Generate Board --> " + elapsedTime / 1000.0);
+        timercontrol(1.5f);
     }
 
     private void createBacks() {
@@ -126,8 +130,12 @@ public class Board extends GameObject {
                 backSprite.setSize(Settings.SQUARE_SIZE, Settings.SQUARE_SIZE);
                 backSprite
                         .setPosition(squares[i][j].getPosition().x, squares[i][j].getPosition().y);
-                backSprite.setScale(1.0f);
+                backSprite.setScale(1.05f);
                 backSprite.setOriginCenter();
+                backSprite.setAlpha(0);
+                Tween.to(backSprite, SpriteAccessor.ALPHA, .5f).delay(.3f).target(.5f)
+                     .start(getManager());
+                //backSprite.setColor(FlatColors.WHITE);
                 backs.add(backSprite);
             }
         }
@@ -137,6 +145,7 @@ public class Board extends GameObject {
     @Override
     public void update(float delta) {
         super.update(delta);
+        ninepatch.setColor(sprite.getColor());
 
         for (int i = 0; i < NUM_OF_SQUARES_X; i++) {
             for (int j = 0; j < NUM_OF_SQUARES_Y; j++) {
@@ -148,7 +157,15 @@ public class Board extends GameObject {
     @Override
     public void render(SpriteBatch batch, ShapeRenderer shapeRenderer) {
         //super.render(batch, shapeRenderer);
-        ninepatch.draw(batch, sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight());
+        if (sprite.getScaleX() != 1) {
+            float width = sprite.getWidth() * sprite.getScaleX();
+            float height = sprite.getHeight() * sprite.getScaleY();
+            float xn = world.gameWidth / 2 - width / 2;
+            float yn = world.gameHeight / 2 - height / 2;
+            ninepatch.draw(batch, xn, yn, width, height);
+        } else ninepatch.draw(batch, sprite.getX(), sprite.getY(),
+                              sprite.getWidth(), sprite.getHeight());
+
         for (int i = 0; i < backs.size(); i++) {
             backs.get(i).draw(batch);
         }
@@ -424,10 +441,10 @@ public class Board extends GameObject {
         return false;
     }
 
-    private void timercontrol() {
+    private void timercontrol(float delay) {
         world.boardBlocked = true;
         Value timer = new Value();
-        Tween.to(timer, -1, .50f).setCallbackTriggers(TweenCallback.COMPLETE).setCallback(
+        Tween.to(timer, -1, delay).setCallbackTriggers(TweenCallback.COMPLETE).setCallback(
                 new TweenCallback() {
                     @Override
                     public void onEvent(int type, BaseTween<?> source) {
@@ -536,9 +553,8 @@ public class Board extends GameObject {
                                 Square cSquare = squares[i][j];
                                 if (cSquare.type == Square.Type.EMPTY) {
                                     //TODO: CHANGE Values
-                                    squares[i][j] = createNewSquare(i, j,
-                                                                    MathUtils.random(1,
-                                                                                     NUM_OF_TYPES - 1));
+                                    squares[i][j] = createNewSquare(i, j, MathUtils.random(1,
+                                                                                           NUM_OF_TYPES - 1));
                                     //Gdx.app.log("Delay", String.valueOf(delays.get(j) * 2));
                                     squares[i][j].fallingEffect(pos[i][j], delays.get(j) * 2f);
                                 }
@@ -546,7 +562,7 @@ public class Board extends GameObject {
                         }
 
                         world.boardBlocked = false;
-                        timercontrol();
+                        timercontrol(.6f);
                     }
 
                 }).start(getManager());
@@ -577,7 +593,7 @@ public class Board extends GameObject {
 
     public void autoSolve() {
         Value timer = new Value();
-        Tween.to(timer, -1, .35f).setCallbackTriggers(TweenCallback.COMPLETE).setCallback(
+        Tween.to(timer, -1, .15f).setCallbackTriggers(TweenCallback.COMPLETE).setCallback(
                 new TweenCallback() {
                     @Override
                     public void onEvent(int type, BaseTween<?> source) {
