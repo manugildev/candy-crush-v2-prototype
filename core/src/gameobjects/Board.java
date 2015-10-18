@@ -50,7 +50,7 @@ public class Board extends GameObject {
 
     //GFX
     NinePatch ninepatch;
-    private int bombTypeNum;
+    private int bombTypeNum, rayTypeNum;
 
     public Board(GameWorld world, float x, float y, float width, float height,
                  Texture texture, Color color, Shape shape) {
@@ -371,6 +371,8 @@ public class Board extends GameObject {
     }
 
     public void dissapearOneLine(int x, int y, boolean isHorizontal) {
+        rayTypeNum = squares[x][y].typeN > 1 ? squares[x][y].typeN : 1;
+        world.animRay.changeRegion(AssetLoader.rays.get(rayTypeNum - 1));
         if (isHorizontal) {
             for (int w = 0; w < NUM_OF_SQUARES_X; w++) {
                 if (squares[w][y].bonus != Square.Bonus.NORMAL) squares[w][y].dissapear();
@@ -386,7 +388,7 @@ public class Board extends GameObject {
 
     public void dissapearBomb(int x, int y) {
         bombTypeNum = squares[x][y].typeN > 1 ? squares[x][y].typeN : 1;
-        world.anim.changeRegion(AssetLoader.explosion.get(bombTypeNum - 1));
+        world.animBomb.changeRegion(AssetLoader.explosion.get(bombTypeNum - 1));
         for (int w = x - 1; w <= x + 1; w++) {
             for (int l = y - 1; l <= y + 1; l++) {
                 if (coordExists(w, l))
@@ -417,16 +419,38 @@ public class Board extends GameObject {
                     break;
                 case RAY:
                     dissapearOneLine(c.x, c.y, match.isHorizontal());
+                    if (match.isHorizontal()) {
+                        world.animRay.sprite.setRotation(Math.random() < 0.5f ? 90 + 180 : 90);
+                        world.animRay.sprite.setOriginCenter();
+                        world.animRay
+                                .setSprite(
+                                        world.gameWidth / 2,
+                                        squares[c.x][c.y].getSprite().getY() + squares[c.x][c.y]
+                                                .getSprite().getWidth() / 2,
+                                        (int) world.board.getSprite().getHeight() - 20,
+                                        (int) world.board.getSprite().getHeight() + 20);
+                    } else {
+                        world.animRay.sprite.setRotation(Math.random() < 0.5f ? 0 : 180);
+                        world.animRay.sprite.setOriginCenter();
+                        world.animRay
+                                .setSprite(squares[c.x][c.y].getSprite().getX() +
+                                                   squares[c.x][c.y].getSprite().getWidth() / 2,
+                                           world.gameHeight / 2,
+                                           (int) world.board.getSprite().getHeight() - 20,
+                                           (int) world.board.getSprite().getHeight() + 20);
+                    }
+                    world.animRay.start(.2f, .1f, 1);
                     break;
                 case BOMB:
                     dissapearBomb(c.x, c.y);
-
-                    world.anim.setSprite(
+                    world.animBomb.sprite.setRotation(MathUtils.random(0,360));
+                    world.animBomb.sprite.setOriginCenter();
+                    world.animBomb.setSprite(
                             squares[c.x][c.y].getSprite().getX() +
                                     squares[c.x][c.y].getSprite().getWidth() / 2,
                             squares[c.x][c.y].getSprite().getY() + squares[c.x][c.y]
                                     .getSprite().getWidth() / 2, 350, 350);
-                    world.anim.start(.03f, .02f, 1);
+                    world.animBomb.start(.03f, .02f, 1);
                     break;
                 default:
                     squares[c.x][c.y].dissapear();

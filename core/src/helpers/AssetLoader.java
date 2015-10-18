@@ -21,10 +21,11 @@ public class AssetLoader {
     public static TextureRegion square, dot;
 
     //ADVANCE
-    public static Texture background, jewelsTexture, dissEffect, board, back, bomb;
+    public static Texture background, jewelsTexture, dissEffect, board, back, bomb, ray;
     public static ArrayList<TextureRegion> jewels = new ArrayList<TextureRegion>();
     public static ArrayList<TextureRegion> jewelsSelected = new ArrayList<TextureRegion>();
     public static ArrayList<TextureRegion> explosion = new ArrayList<TextureRegion>();
+    public static ArrayList<TextureRegion> rays = new ArrayList<TextureRegion>();
 
     //SOUNDS
     public static Sound click, flap, coinS, success, end;
@@ -54,7 +55,15 @@ public class AssetLoader {
         bomb = getAssetTexture("explosion.png");
         for (int i = 0; i < Settings.NUM_OF_TYPES; i++) {
             explosion.add(new TextureRegion(getAssetTexture("explosion.png"), 0,
-                                            bomb.getHeight() / 5 * i, bomb.getWidth(), bomb.getHeight() / 5));
+                                            bomb.getHeight() / 5 * i, bomb.getWidth(),
+                                            bomb.getHeight() / 5));
+        }
+        ray = getAssetTexture("ray.png");
+
+        for (int i = 0; i < Settings.NUM_OF_TYPES; i++) {
+            rays.add(new TextureRegion(getAssetTexture("ray.png"), 0,
+                                      ray.getHeight() / 5 * i, ray.getWidth(),
+                                      ray.getHeight() / 5));
         }
         dissEffect = getAssetTexture("dissEffect.png");
         back = getAssetTexture("back.png");

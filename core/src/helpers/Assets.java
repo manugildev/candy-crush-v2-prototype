@@ -33,6 +33,7 @@ public class Assets {
         manager.load("jewels_selected.png", Texture.class, param);
         manager.load("dissEffect.png", Texture.class, param);
         manager.load("explosion.png", Texture.class, param);
+        manager.load("ray.png", Texture.class, param);
 
         //Font
         manager.load("misc/font.fnt", BitmapFont.class);

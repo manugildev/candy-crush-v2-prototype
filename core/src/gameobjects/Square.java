@@ -81,7 +81,7 @@ public class Square extends GameObject {
 
         if (Math.random() < Settings.BONUS_PROB) {
             setBonus(MathUtils.random(1, Bonus.values().length - 1));
-            //setBonus(2);
+            //setBonus(1);
         } else {
             setBonus(0);
         }
@@ -139,8 +139,9 @@ public class Square extends GameObject {
 
     public void deSelect() {
         //scale(0.9f, 1f, .1f, .0f);
+        if(isSelected){
         isSelected = false;
-        sprite.setRegion(AssetLoader.jewels.get(typeN - 1));
+        sprite.setRegion(AssetLoader.jewels.get(typeN - 1));}
     }
 
     public void slideRight() {

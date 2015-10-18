@@ -2,6 +2,7 @@ package gameworld;
 
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Array;
 
@@ -35,14 +36,16 @@ public class GameWorld {
     public Board board;
     public boolean boardBlocked = false;
 
-    public Animation anim;
+    public Animation animBomb, animRay;
 
     public GameWorld(MainGame game, float gameWidth, float gameHeight) {
         this.game = game;
         this.gameWidth = gameWidth;
         this.gameHeight = gameHeight;
         gameState = GameState.TUTORIAL;
-        anim = new Animation(AssetLoader.explosion.get(0), 46, 1);
+        animBomb = new Animation(AssetLoader.explosion.get(0), 46, 1);
+        animRay = new Animation(new TextureRegion(AssetLoader.ray), 18, 1);
+
     }
 
     public void start() {
@@ -56,12 +59,15 @@ public class GameWorld {
 
         //GAMEOBJECTS
         createBoard();
+        animRay.setSprite(gameWidth / 2, gameHeight / 2, (int)board.getSprite().getHeight()+20,
+                          (int)board.getSprite().getHeight()+20);
         top.fadeOut(.5f, .0f);
 
     }
 
     public void update(float delta) {
-        anim.update(delta);
+        animBomb.update(delta);
+        animRay.update(delta);
         manager.update(delta);
         board.update(delta);
         top.update(delta);
@@ -71,7 +77,8 @@ public class GameWorld {
         background.render(batch, shapeRenderer);
         board.render(batch, shapeRenderer);
         top.render(batch, shapeRenderer);
-        anim.render(batch);
+        animBomb.render(batch);
+        animRay.render(batch);
     }
 
     public void addScore(int i) {

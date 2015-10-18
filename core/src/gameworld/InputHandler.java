@@ -135,6 +135,7 @@ public class InputHandler implements InputProcessor {
                     }
                 }
             }
+        if (touchedSquare != null) touchedSquare.deSelect();
         return false;
     }
 
