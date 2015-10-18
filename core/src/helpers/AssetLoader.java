@@ -24,6 +24,7 @@ public class AssetLoader {
     public static Texture background, jewelsTexture, dissEffect, board, back, bomb;
     public static ArrayList<TextureRegion> jewels = new ArrayList<TextureRegion>();
     public static ArrayList<TextureRegion> jewelsSelected = new ArrayList<TextureRegion>();
+    public static ArrayList<TextureRegion> explosion = new ArrayList<TextureRegion>();
 
     //SOUNDS
     public static Sound click, flap, coinS, success, end;
@@ -50,10 +51,14 @@ public class AssetLoader {
         for (int i = 0; i < Settings.NUM_OF_TYPES; i++) {
             jewelsSelected.add(new TextureRegion(jewelsTexture, 400 * i, 0, 400, 400));
         }
+        bomb = getAssetTexture("explosion.png");
+        for (int i = 0; i < Settings.NUM_OF_TYPES; i++) {
+            explosion.add(new TextureRegion(getAssetTexture("explosion.png"), 0,
+                                            bomb.getHeight() / 5 * i, bomb.getWidth(), bomb.getHeight() / 5));
+        }
         dissEffect = getAssetTexture("dissEffect.png");
         back = getAssetTexture("back.png");
         board = getAssetTexture("board2.png");
-        bomb = getAssetTexture("explosion.png");
 
 
         //FONTS

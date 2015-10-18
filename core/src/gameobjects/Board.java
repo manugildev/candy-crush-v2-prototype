@@ -50,6 +50,7 @@ public class Board extends GameObject {
 
     //GFX
     NinePatch ninepatch;
+    private int bombTypeNum;
 
     public Board(GameWorld world, float x, float y, float width, float height,
                  Texture texture, Color color, Shape shape) {
@@ -57,7 +58,7 @@ public class Board extends GameObject {
 
         ninepatch = new NinePatch(texture, 100, 100, 100, 100);
         delays.addAll(0.01f, 0.02f, 0.03f, 0.04f, 0.05f, 0.06f, 0.07f, 0.08f, 0.09f, 0.1f, 0.11f,
-                      0.12f, 0.13f, 0.14f, 0.15f, 0.17f);
+                      0.12f);
         delays.reverse();
         sprite.setAlpha(.85f);
 
@@ -384,6 +385,8 @@ public class Board extends GameObject {
     }
 
     public void dissapearBomb(int x, int y) {
+        bombTypeNum = squares[x][y].typeN > 1 ? squares[x][y].typeN : 1;
+        world.anim.changeRegion(AssetLoader.explosion.get(bombTypeNum - 1));
         for (int w = x - 1; w <= x + 1; w++) {
             for (int l = y - 1; l <= y + 1; l++) {
                 if (coordExists(w, l))
@@ -417,6 +420,13 @@ public class Board extends GameObject {
                     break;
                 case BOMB:
                     dissapearBomb(c.x, c.y);
+
+                    world.anim.setSprite(
+                            squares[c.x][c.y].getSprite().getX() +
+                                    squares[c.x][c.y].getSprite().getWidth() / 2,
+                            squares[c.x][c.y].getSprite().getY() + squares[c.x][c.y]
+                                    .getSprite().getWidth() / 2, 350, 350);
+                    world.anim.start(.03f, .02f, 1);
                     break;
                 default:
                     squares[c.x][c.y].dissapear();

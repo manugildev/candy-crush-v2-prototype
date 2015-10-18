@@ -35,23 +35,21 @@ public class GameWorld {
     public Board board;
     public boolean boardBlocked = false;
 
-    private Animation anim;
+    public Animation anim;
 
     public GameWorld(MainGame game, float gameWidth, float gameHeight) {
         this.game = game;
         this.gameWidth = gameWidth;
         this.gameHeight = gameHeight;
         gameState = GameState.TUTORIAL;
-        anim = new Animation(AssetLoader.bomb, 8, .5f, 1f);
-        anim.setSprite(gameWidth / 2, gameWidth / 2, 250, 250);
-
+        anim = new Animation(AssetLoader.explosion.get(0), 46, 1);
     }
 
     public void start() {
         //GAMEOBJECTS
         manager = new TweenManager();
-        top = new GameObject(this, 0, 0, gameWidth, gameHeight, AssetLoader.square, FlatColors.WHITE,
-                             GameObject.Shape.RECTANGLE);
+        top = new GameObject(this, 0, 0, gameWidth, gameHeight, AssetLoader.square,
+                             FlatColors.WHITE, GameObject.Shape.RECTANGLE);
         background = new GameObject(this, 0, 0, gameWidth, gameHeight,
                                     AssetLoader.background, FlatColors.WHITE,
                                     GameObject.Shape.RECTANGLE);
@@ -73,7 +71,7 @@ public class GameWorld {
         background.render(batch, shapeRenderer);
         board.render(batch, shapeRenderer);
         top.render(batch, shapeRenderer);
-        //anim.render(batch);
+        anim.render(batch);
     }
 
     public void addScore(int i) {

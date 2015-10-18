@@ -81,6 +81,7 @@ public class Square extends GameObject {
 
         if (Math.random() < Settings.BONUS_PROB) {
             setBonus(MathUtils.random(1, Bonus.values().length - 1));
+            //setBonus(2);
         } else {
             setBonus(0);
         }
@@ -297,16 +298,16 @@ public class Square extends GameObject {
         switch (num) {
             case 1:
                 //sprite.setColor(FlatColors.colors.get(num - 1));
-                return Type.WHITE;
+                return Type.BLUE;
             case 2:
                 //sprite.setColor(FlatColors.colors.get(num - 1));
                 return Type.RED;
             case 3:
                 //sprite.setColor(FlatColors.colors.get(num - 1));
-                return Type.PURPLE;
+                return Type.ORANGE;
             case 4:
                 //sprite.setColor(FlatColors.colors.get(num - 1));
-                return Type.ORANGE;
+                return Type.PURPLE;
             case 5:
                 // sprite.setColor(FlatColors.colors.get(num - 1));
                 return Type.GREEN;
