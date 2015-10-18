@@ -21,9 +21,10 @@ public class Assets {
         param.magFilter = Texture.TextureFilter.Linear;
         param.genMipMaps = true;
 
-        //param = null;
+        param = null;
 
         //Textures
+        manager.load("explosion.png", Texture.class, param);
         manager.load("back.png", Texture.class, param);
         manager.load("board2.png", Texture.class, param);
         manager.load("dot.png", Texture.class, param);
@@ -32,7 +33,6 @@ public class Assets {
         manager.load("jewels.png", Texture.class, param);
         manager.load("jewels_selected.png", Texture.class, param);
         manager.load("dissEffect.png", Texture.class, param);
-        manager.load("explosion.png", Texture.class, param);
         manager.load("ray.png", Texture.class, param);
 
         //Font

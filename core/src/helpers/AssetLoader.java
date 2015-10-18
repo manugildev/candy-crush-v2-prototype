@@ -54,7 +54,7 @@ public class AssetLoader {
         }
         bomb = getAssetTexture("explosion.png");
         for (int i = 0; i < Settings.NUM_OF_TYPES; i++) {
-            explosion.add(new TextureRegion(getAssetTexture("explosion.png"), 0,
+            explosion.add(new TextureRegion(bomb, 0,
                                             bomb.getHeight() / 5 * i, bomb.getWidth(),
                                             bomb.getHeight() / 5));
         }

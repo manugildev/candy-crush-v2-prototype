@@ -59,8 +59,9 @@ public class GameWorld {
 
         //GAMEOBJECTS
         createBoard();
-        animRay.setSprite(gameWidth / 2, gameHeight / 2, (int)board.getSprite().getHeight()+20,
-                          (int)board.getSprite().getHeight()+20);
+        animRay.setSprite(gameWidth / 2, gameHeight / 2, (int) board.getSprite().getHeight() + 20,
+                          (int) board.getSprite().getHeight() + 20);
+        animBomb.setSprite(gameWidth / 2, gameHeight / 2, 350, 350);
         top.fadeOut(.5f, .0f);
 
     }
