@@ -80,8 +80,8 @@ public class Square extends GameObject {
         particleEffect.start();
 
         if (Math.random() < Settings.BONUS_PROB) {
-            setBonus(MathUtils.random(1, Bonus.values().length - 1));
-            //setBonus(1);
+            //setBonus(MathUtils.random(1, Bonus.values().length - 1));
+            setBonus(MathUtils.random(1,2));
         } else {
             setBonus(0);
         }

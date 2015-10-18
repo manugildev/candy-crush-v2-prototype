@@ -420,18 +420,18 @@ public class Board extends GameObject {
                 case RAY:
                     dissapearOneLine(c.x, c.y, match.isHorizontal());
                     if (match.isHorizontal()) {
-                        world.animRay.sprite.setRotation(Math.random() < 0.5f ? 90 + 180 : 90);
                         world.animRay.sprite.setOriginCenter();
+                        world.animRay.sprite.setRotation(Math.random() < 0.5f ? 90 + 180 : 90);
                         world.animRay
                                 .setSprite(
                                         world.gameWidth / 2,
                                         squares[c.x][c.y].getSprite().getY() + squares[c.x][c.y]
                                                 .getSprite().getWidth() / 2,
-                                        (int) world.board.getSprite().getHeight() - 20,
-                                        (int) world.board.getSprite().getHeight() + 20);
+                                        (int) world.board.getSprite().getWidth() - 20,
+                                        (int) world.board.getSprite().getWidth() + 20);
                     } else {
-                        world.animRay.sprite.setRotation(Math.random() < 0.5f ? 0 : 180);
                         world.animRay.sprite.setOriginCenter();
+                        world.animRay.sprite.setRotation(Math.random() < 0.5f ? 0 : 180);
                         world.animRay
                                 .setSprite(squares[c.x][c.y].getSprite().getX() +
                                                    squares[c.x][c.y].getSprite().getWidth() / 2,
@@ -443,7 +443,7 @@ public class Board extends GameObject {
                     break;
                 case BOMB:
                     dissapearBomb(c.x, c.y);
-                    world.animBomb.sprite.setRotation(MathUtils.random(0,360));
+                    world.animBomb.sprite.setRotation(MathUtils.random(0, 360));
                     world.animBomb.sprite.setOriginCenter();
                     world.animBomb.setSprite(
                             squares[c.x][c.y].getSprite().getX() +

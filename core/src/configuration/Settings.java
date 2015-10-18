@@ -14,5 +14,5 @@ public class Settings {
     public static int SQUARE_SIZE = 120;
     public static int SPACE_BETWEEN_SQUARES = 10;
 
-    public static float BONUS_PROB = 0.05f;
+    public static float BONUS_PROB = 0.15f;
 }
