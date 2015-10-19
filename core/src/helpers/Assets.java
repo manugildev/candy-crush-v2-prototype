@@ -21,7 +21,7 @@ public class Assets {
         param.magFilter = Texture.TextureFilter.Linear;
         param.genMipMaps = true;
 
-        param = null;
+        //param = null;
 
         //Textures
         manager.load("explosion.png", Texture.class, param);
