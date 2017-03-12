@@ -241,8 +241,8 @@ public class Square extends GameObject {
 
     public void dissapear() {
         if (type != Type.EMPTY) {
-            scale(1, 0, .3f, .1f);
-            fadeOut(.3f, .1f);
+            scale(1, 0, .45f, .1f);
+            fadeOut(.4f, .1f);
             setType(-1);
             dissEffect.setPosition(
                     sprite.getX() + (sprite.getWidth() / 2) - (dissEffect.getWidth() / 2),

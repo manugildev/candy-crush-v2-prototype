@@ -15,4 +15,8 @@ public class Settings {
     public static int SPACE_BETWEEN_SQUARES = 10;
 
     public static float BONUS_PROB = 0.05f;
+
+    //TIMER
+    public static final float TIMER_HEIGHT = 160;
+    public static final float TIMER_PAD = 20 ;
 }

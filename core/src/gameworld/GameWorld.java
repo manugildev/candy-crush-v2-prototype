@@ -18,6 +18,7 @@ import helpers.AssetLoader;
 import helpers.FlatColors;
 import screens.GameScreen;
 import screens.LoadingScreen;
+import ui.Timer;
 
 import static configuration.Settings.BOARD_MARGIN;
 import static configuration.Settings.NUM_OF_SQUARES_X;
@@ -35,6 +36,7 @@ public class GameWorld {
     public TweenManager manager;
     public Board board;
     public boolean boardBlocked = false;
+    public Timer timer;
 
     public Animation animBomb, animRay;
 
@@ -52,17 +54,20 @@ public class GameWorld {
         //GAMEOBJECTS
         manager = new TweenManager();
         top = new GameObject(this, 0, 0, gameWidth, gameHeight, AssetLoader.square,
-                             FlatColors.WHITE, GameObject.Shape.RECTANGLE);
+                FlatColors.WHITE, GameObject.Shape.RECTANGLE);
         background = new GameObject(this, 0, 0, gameWidth, gameHeight,
-                                    AssetLoader.background, FlatColors.WHITE,
-                                    GameObject.Shape.RECTANGLE);
+                AssetLoader.background, FlatColors.WHITE,
+                GameObject.Shape.RECTANGLE);
 
         //GAMEOBJECTS
         createBoard();
         animRay.setSprite(gameWidth / 2, gameHeight / 2, (int) board.getSprite().getHeight() + 20,
-                          (int) board.getSprite().getHeight() + 20);
+                (int) board.getSprite().getHeight() + 20);
         animBomb.setSprite(gameWidth / 2, gameHeight / 2, 350, 350);
         top.fadeOut(.5f, .0f);
+
+        timer = new Timer(this, board.sprite.getX()+Settings.TIMER_PAD*2, board.sprite.getY() - Settings.TIMER_PAD - Settings.TIMER_HEIGHT,
+                board.getSprite().getWidth()-Settings.TIMER_PAD*4, Settings.TIMER_HEIGHT, AssetLoader.board, FlatColors.WHITE, GameObject.Shape.RECTANGLE);
 
     }
 
@@ -72,6 +77,7 @@ public class GameWorld {
         manager.update(delta);
         board.update(delta);
         top.update(delta);
+        timer.update(delta);
     }
 
     public void render(SpriteBatch batch, ShapeRenderer shapeRenderer) {
@@ -80,6 +86,7 @@ public class GameWorld {
         top.render(batch, shapeRenderer);
         animBomb.render(batch);
         animRay.render(batch);
+        timer.render(batch,shapeRenderer);
     }
 
     public void addScore(int i) {
@@ -138,7 +145,7 @@ public class GameWorld {
         float boardX = gameWidth / 2 - (boardW / 2);
         float boardY = gameHeight / 2 - (boardH / 2);
         board = new Board(this, boardX, boardY, boardW, boardH, AssetLoader.board,
-                          FlatColors.WHITE,
-                          GameObject.Shape.RECTANGLE);
+                FlatColors.WHITE,
+                GameObject.Shape.RECTANGLE);
     }
 }
