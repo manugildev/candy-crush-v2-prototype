@@ -62,3 +62,5 @@ nb-configuration.xml
 
 .gradle
 build/
+
+psd/
