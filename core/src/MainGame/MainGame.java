@@ -3,6 +3,7 @@ package MainGame;
 import com.badlogic.gdx.Game;
 
 import aurelienribon.tweenengine.Tween;
+import helpers.AssetLoader;
 import helpers.Assets;
 import screens.LoadingScreen;
 
@@ -11,6 +12,7 @@ public class MainGame extends Game {
 	public int score = 0;
 
 	public MainGame() {
+
 		Assets.load();
 	}
 
@@ -30,6 +32,7 @@ public class MainGame extends Game {
 		super.dispose();
 		Assets.manager.dispose();
 		Assets.manager = null;
+		AssetLoader.dispose();
 	}
 
 	@Override

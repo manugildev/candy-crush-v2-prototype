@@ -5,7 +5,7 @@ import com.badlogic.gdx.utils.Array;
 
 public class FlatColors {
 
-    public static final Array<Color> colors = new Array<Color>();
+    public static Array<Color> colors = new Array<Color>();
 
     public static final Color RED = parseColor("#e74c3c", 1f);
     public static final Color DARK_RED = parseColor("#c0392b", 1f);
@@ -43,6 +43,16 @@ public class FlatColors {
     public static final Color DARK_SKY_BLUE = parseColor("#181f3f", 1f);
     public static final Color LOGO_GREEN = parseColor("00A386");
 
+    public static final Array<Color> allColors = new Array<Color>(){{
+        this.add(RED);
+        this.add(GREEN);
+        this.add(ORANGE);
+        this.add(PURPLE);
+        this.add(BLUE);
+        this.add(DARK_WHITE);
+        this.add(LIGHT_BLACK);
+    }};
+
     public static Color parseColor(String hex, float alpha) {
         String hex1 = hex;
         if (hex1.indexOf("#") != -1) {
@@ -64,10 +74,10 @@ public class FlatColors {
     }
 
     public static void organizeColors() {
-        colors.addAll(DARK_SEA, DARK_RED, DARK_GREEN, DARK_BLUE, DARK_YELLOW,
-                DARK_PURPLE, DARK_ORANGE, YELLOW, GREEN, SEA, RED,
-                BLUE, ORANGE, PURPLE);
+        //colors.addAll(DARK_SEA, DARK_RED, DARK_GREEN, DARK_BLUE, DARK_YELLOW,
+                //DARK_PURPLE, DARK_ORANGE, YELLOW, GREEN, SEA, RED,
+                //BLUE, ORANGE, PURPLE);
         colors.clear();
-        colors.addAll(RED, GREEN, ORANGE, PURPLE, BLUE, DARK_WHITE, LIGHT_BLACK);
+        colors = allColors;
     }
 }

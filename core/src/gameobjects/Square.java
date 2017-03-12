@@ -9,12 +9,12 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Align;
 
 import aurelienribon.tweenengine.BaseTween;
 import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenCallback;
 import aurelienribon.tweenengine.TweenEquations;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import configuration.Settings;
 import gameworld.GameWorld;
 import helpers.AssetLoader;
@@ -24,80 +24,106 @@ import tweens.Value;
 import tweens.VectorAccessor;
 import ui.Text;
 
-public class Square extends GameObject {
+public class Square extends GameObject implements Poolable {
 
 
-    public int column, row;
+    public int column = 0, row = 0;
     private Text text;
-    public int typeN, emptyB = 0;
+    public int typeN = 0, emptyB = 0;
     public float diffY = 0;
     private Sprite bonusSprite, dissEffect;
 
     private ParticleEffect particleEffect;
     public boolean isSelected = false;
+    public boolean alive = false;
 
     public Bonus bonus;
-    public Type type;
+    public Type type = null;
 
     public enum Type {EMPTY, WHITE, RED, PURPLE, ORANGE, GREEN, YELLOW, BLUE}
 
     public enum Bonus {NORMAL, RAY, BOMB, BITCOIN}
 
-    public Square(GameWorld world, float x, float y, float width, float height,
-                  TextureRegion texture, Color color, Shape shape, int column, int row, int typeN) {
-        super(world, x, y, width, height, texture, color, shape);
+    public Square() {
+        super();
+
+        //PARTICLES
+        //particleEffect = Particles.getExplodeEffect();
+        particleEffect = new ParticleEffect();
+        particleEffect.load(Gdx.files.internal("misc/hit.p"), Gdx.files.internal(""));
+        Gdx.app.log("new Square 1: ", "=====================");
+    }
+
+    private void bonusAndDiss(float width, float height) {
+        if (bonusSprite == null) {
+            bonusSprite = new Sprite(AssetLoader.square);
+        }
+        bonusSprite.setColor(FlatColors.WHITE);
+        bonusSprite.setSize(width / 3, height / 3);
+        bonusSprite.setScale(1);
+        bonusSprite.setOriginCenter();
+
+        if (dissEffect == null) {
+            dissEffect = new Sprite(AssetLoader.dissEffect);
+        }
+        dissEffect.setColor(FlatColors.WHITE);
+        dissEffect.setSize(width, height);
+        dissEffect.setScale(0);
+        dissEffect.setAlpha(1);
+        dissEffect.setOriginCenter();
+    }
+
+    private void handleBonus() {
+        if (Math.random() < Settings.BONUS_PROB) {
+            //setBonus(MathUtils.random(1, Bonus.values().length - 1));
+            setBonus(MathUtils.random(1, 2));
+        } else {
+            setBonus(0);
+        }
+    }
+
+    public void init(GameWorld world, float x, float y, float width, float height,
+                     TextureRegion texture, Color color, Shape shape, int column, int row, int typeN) {
+
+        //Gdx.app.log("col/row: ", column + " " + row);
+
+        this.world = world;
+        initPosition(x, y);
+        initColor(color);
+        initSprites(width, height, texture);
+        initShape(width, height, shape);
+
         this.column = column;
         this.row = row;
         this.type = numToType(typeN);
         this.typeN = typeN;
         FlatColors.organizeColors();
         setType(typeN);
-        text = new Text(world, x + 10, y, width, height, texture, color, column + "" + row,
-                        AssetLoader.font08, FlatColors.WHITE, 10,
-                        Align.left);
+        //text = new Text(world, x + 10, y, width, height, texture, color, column + "" + row,
+        //AssetLoader.font08, FlatColors.WHITE, 10,
+        //Align.left);
 
-
-        bonusSprite = new Sprite(AssetLoader.square);
-        bonusSprite.setColor(FlatColors.WHITE);
-        bonusSprite.setSize(width / 3, height / 3);
-        bonusSprite.setScale(1);
-        bonusSprite.setOriginCenter();
-
-        dissEffect = new Sprite(AssetLoader.dissEffect);
-        dissEffect.setColor(FlatColors.WHITE);
-        dissEffect.setSize(width, height);
-        dissEffect.setScale(0);
-        dissEffect.setAlpha(1);
-        dissEffect.setOriginCenter();
+        bonusAndDiss(width, height);
 
         //PARTICLES
-        particleEffect = new ParticleEffect();
-        particleEffect.load(Gdx.files.internal("misc/hit.p"), Gdx.files.internal(""));
         particleEffect.setPosition(
                 sprite.getX() + (sprite.getWidth() / 2),
                 sprite.getY() + (sprite.getHeight() / 2));
         particleEffect.start();
         particleEffect.start();
 
-        if (Math.random() < Settings.BONUS_PROB) {
-            //setBonus(MathUtils.random(1, Bonus.values().length - 1));
-            setBonus(MathUtils.random(1,2));
-        } else {
-            setBonus(0);
-        }
+        handleBonus();
 
-    }
-
-    public Square(GameWorld world) {
-        super(world, 0, 0, 0, 0, AssetLoader.square, FlatColors.WHITE, Shape.RECTANGLE);
+        alive = true;
     }
 
     public void update(float delta) {
         super.update(delta);
+        // particleEffect.update(delta);
         particleEffect.update(delta);
-        text.update(delta);
-        text.setText(column + "" + row /*+ "\nE:" + emptyB*/);
-        text.setPosition(getPosition().x + 10, getPosition().y);
+        //text.update(delta);
+        //text.setText(column + "" + row /*+ "\nE:" + emptyB*/);
+        //text.setPosition(getPosition().x + 10, getPosition().y);
         //if (isSelected)
         if (bonus != Bonus.NORMAL) {
             bonusSprite.setPosition(
@@ -105,8 +131,6 @@ public class Square extends GameObject {
                     sprite.getY() + (sprite.getHeight() / 2) - (bonusSprite.getHeight() / 2));
             bonusSprite.setScale(sprite.getScaleX(), sprite.getScaleY());
             bonusSprite.setAlpha(sprite.getColor().a);
-
-
         }
     }
 
@@ -116,8 +140,6 @@ public class Square extends GameObject {
         super.render(batch, shapeRenderer);
         if (bonus != Bonus.NORMAL) bonusSprite.draw(batch);
         if (type == Type.EMPTY) dissEffect.draw(batch);
-        // if (Configuration.DEBUG)
-        // if (sprite.getScaleX() == 1) text.render(batch, shapeRenderer, GameRenderer.fontShader);
     }
 
     public void setCoord(int column, int row) {
@@ -132,16 +154,17 @@ public class Square extends GameObject {
     }
 
     public void select() {
-        //scale(1, .9f, .1f, .0f);
+        scale(1, .9f, .1f, .0f);
         isSelected = true;
         sprite.setRegion(AssetLoader.jewelsSelected.get(typeN - 1));
     }
 
     public void deSelect() {
-        //scale(0.9f, 1f, .1f, .0f);
-        if(isSelected){
-        isSelected = false;
-        sprite.setRegion(AssetLoader.jewels.get(typeN - 1));}
+        scale(0.9f, 1f, .1f, .0f);
+        if (isSelected) {
+            isSelected = false;
+            sprite.setRegion(AssetLoader.jewels.get(typeN - 1));
+        }
     }
 
     public void slideRight() {
@@ -215,28 +238,26 @@ public class Square extends GameObject {
 
         Value timer = new Value();
         Tween.to(timer, -1, .21f).target(1).setCallbackTriggers(TweenCallback.COMPLETE)
-             .setCallback(new TweenCallback() {
-                 @Override
-                 public void onEvent(int type, BaseTween<?> source) {
-                     if (world.board.check().size == 0) {
-                         swapXandY(squares, x2, y2, x1, y1);
-                     } else {
-                         world.board.control();
-                     }
-                 }
-             }).start(getManager());
-
-
+                .setCallback(new TweenCallback() {
+                    @Override
+                    public void onEvent(int type, BaseTween<?> source) {
+                        if (world.board.check().size == 0) {
+                            swapXandY(squares, x2, y2, x1, y1);
+                        } else {
+                            world.board.control();
+                        }
+                    }
+                }).start(getManager());
     }
 
     @Override
     public void effectXY(Vector2 from, Vector2 to, float duration, float delay) {
         position.y = from.y;
         Tween.to(position, VectorAccessor.VERTICAL, duration).target(to.y).delay(delay)
-             .ease(TweenEquations.easeInOutSine).start(getManager());
+                .ease(TweenEquations.easeInOutSine).start(getManager());
         position.x = from.x;
         Tween.to(position, VectorAccessor.HORIZONTAL, duration).target(to.x).delay(delay)
-             .ease(TweenEquations.easeInOutSine).start(getManager());
+                .ease(TweenEquations.easeInOutSine).start(getManager());
     }
 
     public void dissapear() {
@@ -253,8 +274,7 @@ public class Square extends GameObject {
 
             particleEffect.reset();
             Tween.to(dissEffect, SpriteAccessor.SCALE, .3f).target(1).start(getManager());
-            Tween.to(dissEffect, SpriteAccessor.ALPHA, .3f).delay(.1f).target(0)
-                 .start(getManager());
+            Tween.to(dissEffect, SpriteAccessor.ALPHA, .3f).delay(.1f).target(0).start(getManager());
         }
     }
 
@@ -341,5 +361,12 @@ public class Square extends GameObject {
                 bonusSprite.setColor(FlatColors.WHITE);
                 return Bonus.NORMAL;
         }
+    }
+
+
+    @Override
+    public void reset() {
+        alive = false;
+        initReset();
     }
 }

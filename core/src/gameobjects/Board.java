@@ -1,10 +1,12 @@
 package gameobjects;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -15,6 +17,7 @@ import java.util.ArrayList;
 import aurelienribon.tweenengine.BaseTween;
 import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenCallback;
+import com.badlogic.gdx.utils.Pool;
 import configuration.Configuration;
 import configuration.Settings;
 import gamecontrol.Coord;
@@ -24,6 +27,8 @@ import gamecontrol.Sols;
 import gameworld.GameWorld;
 import helpers.AssetLoader;
 import helpers.FlatColors;
+import helpers.GlobalPools;
+import helpers.VectorPool;
 import tweens.SpriteAccessor;
 import tweens.Value;
 
@@ -37,6 +42,7 @@ public class Board extends GameObject {
 
     //LOGIC
     public Square[][] squares = new Square[NUM_OF_SQUARES_X][NUM_OF_SQUARES_Y];
+
     Vector2[][] pos = new Vector2[NUM_OF_SQUARES_X][NUM_OF_SQUARES_Y];
     private MultipleMatch matches = new MultipleMatch();
     private Match[][] columns, rows;
@@ -67,6 +73,10 @@ public class Board extends GameObject {
 
         columns = new Match[higherNUM][higherNUM];
         rows = new Match[higherNUM][higherNUM];
+
+        //preloads elements to be used
+        GlobalPools.preloadPools(NUM_OF_SQUARES_X * NUM_OF_SQUARES_Y);
+
         startGame();
         start();
 
@@ -571,6 +581,7 @@ public class Board extends GameObject {
                 new TweenCallback() {
                     @Override
                     public void onEvent(int type, BaseTween<?> source) {
+                        VectorPool.releaseVectors();
                         fillPosArray();
                         for (int i = NUM_OF_SQUARES_X - 1; i >= 0; i--) {
                             for (int j = NUM_OF_SQUARES_Y - 1; j >= 0; j--) {
@@ -586,9 +597,12 @@ public class Board extends GameObject {
                             for (int j = NUM_OF_SQUARES_Y - 1; j >= 0; j--) {
                                 Square cSquare = squares[i][j];
                                 if (cSquare.type == Square.Type.EMPTY) {
-                                    //TODO: CHANGE Values
+                                    //Trigger clears
+                                    if (cSquare.alive) {
+                                        GlobalPools.squarePool.free(cSquare);
+                                    }
                                     squares[i][j] = createNewSquare(i, j, MathUtils.random(1,
-                                                                                           NUM_OF_TYPES - 1));
+                                            NUM_OF_TYPES - 1));
                                     //Gdx.app.log("Delay", String.valueOf(delays.get(j) * 2));
                                     squares[i][j].fallingEffect(pos[i][j], delays.get(j) * 2f);
                                 }
@@ -605,13 +619,27 @@ public class Board extends GameObject {
 
 
     private Square createNewSquare(int i, int j, int type) {
+
+        //Gdx.app.log("create: ", i + " " + j);
         float squareX = sprite.getX()
                 + ((i + 1) * spaceBetweenSquares) + (i * SQUARE_SIZE) + diffX;
         float squareY = sprite.getY() + sprite.getHeight() -
                 ((j + 1) * spaceBetweenSquares) - (j * SQUARE_SIZE) - SQUARE_SIZE - diffY;
-        return new Square(world, squareX, squareY, SQUARE_SIZE, SQUARE_SIZE,
-                          AssetLoader.square, FlatColors.WHITE, Shape.RECTANGLE, i, j, type);
+        //return new Square(world, squareX, squareY, SQUARE_SIZE, SQUARE_SIZE,
+        //                  AssetLoader.square, FlatColors.WHITE, Shape.RECTANGLE, i, j, type);
+        return addSquare(world, squareX, squareY, SQUARE_SIZE, SQUARE_SIZE,
+                AssetLoader.square, FlatColors.WHITE, Shape.RECTANGLE, i, j, type);
     }
+
+
+    private Square addSquare(GameWorld world, float x, float y, float width, float height,
+                           TextureRegion texture, Color color, Shape shape, int column, int row, int typeN){
+        Square square = GlobalPools.squarePool.obtain();
+        square.init(world, x, y, width, height, texture, color, shape, column, row, typeN);
+        //Square.activeSquareList.add(square);
+        return square;
+    }
+
 
     public void fillPosArray() {
         for (int i = 0; i < NUM_OF_SQUARES_X; i++) {
@@ -620,10 +648,14 @@ public class Board extends GameObject {
                         .getX() + ((i + 1) * spaceBetweenSquares) + (i * SQUARE_SIZE) + diffX;
                 float squareY = sprite.getY() + sprite.getHeight() -
                         ((j + 1) * spaceBetweenSquares) - (j * SQUARE_SIZE) - SQUARE_SIZE - diffY;
-                pos[i][j] = new Vector2(squareX, squareY);
+                //pos[i][j] = new Vector2(squareX, squareY);
+                Vector2 v = VectorPool.vectorPool.obtain();
+                VectorPool.init(v, squareX, squareY);
+                pos[i][j] = v;
             }
         }
     }
+
 
     public void autoSolve() {
         Value timer = new Value();

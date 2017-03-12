@@ -16,6 +16,7 @@ import aurelienribon.tweenengine.TweenManager;
 import configuration.Configuration;
 import gameworld.GameWorld;
 import helpers.FlatColors;
+import helpers.GlobalPools;
 import tweens.SpriteAccessor;
 import tweens.VectorAccessor;
 
@@ -27,7 +28,7 @@ public class GameObject {
     public Vector2 position, velocity, acceleration;
     public Sprite sprite;
     private Sprite flashSprite;
-    private Color color;
+    public Color color;
     public boolean isPressed = false;
     private TweenManager manager;
     public boolean isButton = false;
@@ -36,6 +37,20 @@ public class GameObject {
     public enum Shape {RECTANGLE, CIRCLE}
 
     public Shape shape;
+
+    public GameObject(){
+        position = new Vector2();
+        velocity = new Vector2();
+        acceleration = new Vector2();
+
+        sprite = new Sprite();
+        flashSprite = new Sprite();
+
+        //TWEEN STUFF
+        Tween.registerAccessor(Sprite.class, new SpriteAccessor());
+        Tween.registerAccessor(Vector2.class, new VectorAccessor());
+        manager = new TweenManager();
+    }
 
     public GameObject(final GameWorld world, float x, float y, float width, float height,
                       TextureRegion texture, Color color, Shape shape) {
@@ -53,15 +68,9 @@ public class GameObject {
         velocity = new Vector2();
         acceleration = new Vector2();
 
-        sprite = new Sprite(texture);
-        sprite.setPosition(position.x, position.y);
-        sprite.setSize(width, height);
-        sprite.setColor(color);
-
-        flashSprite = new Sprite(texture);
-        flashSprite.setPosition(position.x, position.y);
-        flashSprite.setSize(width, height);
-        flashSprite.setAlpha(0);
+        sprite = new Sprite();
+        flashSprite = new Sprite();
+        initSprites(width, height, texture);
 
         //TWEEN STUFF
         Tween.registerAccessor(Sprite.class, new SpriteAccessor());
@@ -102,10 +111,57 @@ public class GameObject {
         manager = new TweenManager();
     }
 
+    public void initReset(){
+        position.set(Vector2.Zero);
+        velocity.set(Vector2.Zero);
+        acceleration.set(Vector2.Zero);
+
+        if (shape == Shape.CIRCLE) {
+            GlobalPools.circlePool.free(this.circle);
+        } else if (shape == Shape.RECTANGLE) {
+            GlobalPools.rectanglePool.free(this.getRectangle());
+        }
+    }
+
+    public void initPosition(float x, float y){
+        position.set(x, y);
+    }
+
+    public void initShape(float width, float height, Shape shape){
+        this.shape = shape;
+        if (shape == Shape.CIRCLE) {
+            this.circle = GlobalPools.circlePool.obtain();
+            this.circle.set(position.x, position.y, width / 2);
+            this.circle.setRadius(width / 2);
+        } else if (shape == Shape.RECTANGLE) {
+            this.rectangle = GlobalPools.rectanglePool.obtain();
+            this.rectangle.set(position.x, position.y, width, height);
+            this.rectangle.setSize(width, height);
+        }
+    }
+
+    public void initSprites(float width, float height, TextureRegion texture){
+        //sprite = new Sprite(texture);
+        sprite.setTexture(texture.getTexture());
+        sprite.setPosition(position.x, position.y);
+        sprite.setSize(width, height);
+        sprite.setColor(color);
+
+        //flashSprite = new Sprite(texture);
+        flashSprite.setTexture(texture.getTexture());
+        flashSprite.setPosition(position.x, position.y);
+        flashSprite.setSize(width, height);
+        flashSprite.setAlpha(0);
+    }
+
+    public void initColor(Color color){
+        this.color = color;
+    }
+
     public void update(float delta) {
         manager.update(delta);
-        velocity.add(acceleration.cpy().scl(delta));
-        position.add(velocity.cpy().scl(delta));
+        velocity.add(acceleration.scl(delta));
+        position.add(velocity.scl(delta));
 
         if (shape == Shape.RECTANGLE) rectangle.setPosition(position);
         else if (shape == Shape.CIRCLE)
@@ -252,11 +308,11 @@ public class GameObject {
     }
 
     public Vector2 getPosition() {
-        return position.cpy();
+        return position;
     }
 
     public Vector2 getVelocity() {
-        return velocity.cpy();
+        return velocity;
     }
 
     public Vector2 getAcceleration() {
